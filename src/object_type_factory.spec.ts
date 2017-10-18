@@ -17,7 +17,7 @@ describe("objectTypeFactory", function() {
         class Obj { }
         try {
             objectTypeFactory(Obj);
-            assert.fail();
+            assert.fail("fail");
         } catch (e) {
             const err = e as SchemaFactoryError;
             assert(err.type === SchemaFactoryErrorType.NO_FIELD);

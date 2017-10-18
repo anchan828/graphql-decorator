@@ -129,7 +129,7 @@ describe("fieldTypeFactory", function() {
         });
 
         it("returns resolve function with a class which has a function field", function() {
-            class Obj { @D.Field() title(): string { return "hello"; }; }
+            class Obj { @D.Field() title(): string { return "hello"; } }
             const actual = fieldTypeFactory(Obj, {name: "title"});
             assert(!!actual.resolve);
         });
