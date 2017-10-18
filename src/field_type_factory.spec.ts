@@ -1,178 +1,217 @@
-import * as D from "./decorator";
 import * as assert from "assert";
-import { clearObjectTypeRepository } from "./object_type_factory";
-import { fieldTypeFactory , resolverFactory } from "./field_type_factory";
-const graphql = require("graphql");
+import * as graphql from "graphql";
+import * as D from "./decorator";
+import {fieldTypeFactory, resolverFactory} from "./field_type_factory";
+import {clearObjectTypeRepository} from "./object_type_factory";
 
-describe("resolverFactory", function() {
-    beforeEach(function() {
+describe("resolverFactory", () => {
+    beforeEach(() => {
         clearObjectTypeRepository();
     });
 
-    it("returns argumentConfigMap. The map has GraphQLInt type with a function which has number argument", function () {
-        class Obj { @D.Field() m(input: number): void {} }
+    it("returns argumentConfigMap. The map has GraphQLInt type with a function which has number argument", () => {
+        class Obj {
+            @D.Field()
+            public m(input: number): void {
+                /* No body */
+            }
+        }
+
         const actual = resolverFactory(Obj, "m", [{name: "input"}]).argumentConfigMap;
         assert(actual["input"].type === graphql.GraphQLInt);
     });
 
-    it("returns argumentConfigMap. The map has GraphQLInt type with a function which has Number argument", function () {
-        class Obj { @D.Field() m(input: Number): void {} }
-        const actual = resolverFactory(Obj, "m", [{name: "input"}]).argumentConfigMap;
-        assert(actual["input"].type === graphql.GraphQLInt);
-    });
+    it("returns argumentConfigMap. The map has GraphQLString type with a function which has string argument", () => {
+        class Obj {
+            @D.Field()
+            public m(input: string): void {
+                /* No body */
+            }
+        }
 
-    it("returns argumentConfigMap. The map has GraphQLString type with a function which has string argument", function () {
-        class Obj { @D.Field() m(input: string): void {} }
-        const actual = resolverFactory(Obj, "m", [{name: "input"}]).argumentConfigMap;
-        assert(actual["input"].type === graphql.GraphQLString);
-    });
-
-    it("returns argumentConfigMap. The map has GraphQLString type with a function which has String argument", function () {
-        class Obj { @D.Field() m(input: String): void {} }
         const actual = resolverFactory(Obj, "m", [{name: "input"}]).argumentConfigMap;
         assert(actual["input"].type === graphql.GraphQLString);
     });
 
-    it("returns argumentConfigMap. The map has GraphQLBoolean type with a function which has boolean argument", function () {
-        class Obj { @D.Field() m(input: boolean): void {} }
+    it("returns argumentConfigMap. The map has GraphQLBoolean type with a function which has boolean argument", () => {
+        class Obj {
+            @D.Field()
+            public m(input: boolean): void {
+                /* No body */
+            }
+        }
+
         const actual = resolverFactory(Obj, "m", [{name: "input"}]).argumentConfigMap;
         assert(actual["input"].type === graphql.GraphQLBoolean);
     });
 
-    it("returns argumentConfigMap. The map has GraphQLBoolean type with a function which has Boolean argument", function () {
-        class Obj { @D.Field() m(input: Boolean): void {} }
-        const actual = resolverFactory(Obj, "m", [{name: "input"}]).argumentConfigMap;
-        assert(actual["input"].type === graphql.GraphQLBoolean);
-    });
+    it("returns fn which is executable", () => {
+        class Obj {
+            @D.Field()
+            public twice(input: number): number {
+                return input * 2;
+            }
+        }
 
-    it("returns argumentConfigMap. The map has GraphQLObjectType with a function which has argument", function () {
-        class Obj { @D.Field() m(input: Boolean): void {} }
-        const actual = resolverFactory(Obj, "m", [{name: "input"}]).argumentConfigMap;
-        assert(actual["input"].type === graphql.GraphQLBoolean);
-    });
-
-    it("returns fn which is executable", function() {
-        class Obj { @D.Field() twice(input: number): number { return input * 2; } }
         const fn = resolverFactory(Obj, "twice", [{name: "input"}]).fn;
         const actual = fn(new Obj(), {input: 1});
         assert(actual === 2);
     });
 });
 
-describe("fieldTypeFactory", function() {
-    describe("with implicit type", function() {
-        it("returns null with a class which has no field", function() {
-            class Obj {}
+describe("fieldTypeFactory", () => {
+    describe("with implicit type", () => {
+        it("returns null with a class which has no field", () => {
+            class Obj {
+            }
+
             const actual = fieldTypeFactory(Obj, {name: "title"});
             assert(actual === null);
         });
 
-        it("returns null with a class which has a field without @Field", function() {
-            class Obj { title: any; }
+        it("returns null with a class which has a field without @Field", () => {
+            class Obj {
+                public title: any;
+            }
+
             const actual = fieldTypeFactory(Obj, {name: "title"});
             assert(actual === null);
         });
 
-        it("returns GraphQLInt with a class which has a number field", function() {
-            class Obj { @D.Field() count: number; }
+        it("returns GraphQLInt with a class which has a number field", () => {
+            class Obj {
+                @D.Field() public count: number;
+            }
+
             const actual = fieldTypeFactory(Obj, {name: "count"});
             assert(actual.type instanceof graphql.GraphQLScalarType);
             assert(actual.type.name === "Int");
         });
 
-        it("returns GraphQLInt with a class which has a Number field", function() {
-            class Obj { @D.Field() count: Number; }
-            const actual = fieldTypeFactory(Obj, {name: "count"});
-            assert(actual.type instanceof graphql.GraphQLScalarType);
-            assert(actual.type.name === "Int");
-        });
+        it("returns GraphQLString with a class which has a string field", () => {
+            class Obj {
+                @D.Field() public title: string;
+            }
 
-        it("returns GraphQLString with a class which has a string field", function() {
-            class Obj { @D.Field() title: string; }
             const actual = fieldTypeFactory(Obj, {name: "title"});
             assert(actual.type instanceof graphql.GraphQLScalarType);
             assert(actual.type.name === "String");
         });
 
-        it("returns GraphQLString with a class which has a String field", function() {
-            class Obj { @D.Field() title: String; }
-            const actual = fieldTypeFactory(Obj, {name: "title"});
-            assert(actual.type instanceof graphql.GraphQLScalarType);
-            assert(actual.type.name === "String");
-        });
+        it("returns GraphQLBoolean with a class which has a boolean field", () => {
+            class Obj {
+                @D.Field() public isEnabled: boolean;
+            }
 
-        it("returns GraphQLBoolean with a class which has a boolean field", function() {
-            class Obj { @D.Field() isEnabled: boolean; }
             const actual = fieldTypeFactory(Obj, {name: "isEnabled"});
             assert(actual.type instanceof graphql.GraphQLScalarType);
             assert(actual.type.name === "Boolean");
         });
 
-        it("returns GraphQLBoolean with a class which has a Boolean field", function() {
-            class Obj { @D.Field() isEnabled: Boolean; }
-            const actual = fieldTypeFactory(Obj, {name: "isEnabled"});
-            assert(actual.type instanceof graphql.GraphQLScalarType);
-            assert(actual.type.name === "Boolean");
-        });
+        it("returns GraphQLObjectType with a class which has a field of a class annotated @ObjectType", () => {
+            @D.ObjectType()
+            class ChildObj {
+                @D.Field() public title: string;
+            }
 
-        it("returns GraphQLObjectType with a class which has a field of a class annotated @ObjectType", function() {
-            @D.ObjectType() class ChildObj { @D.Field() title: string; }
-            class ParentObj { @D.Field() child: ChildObj; }
+            class ParentObj {
+                @D.Field() public child: ChildObj;
+            }
+
             const actual = fieldTypeFactory(ParentObj, {name: "child"});
             assert(actual.type instanceof graphql.GraphQLObjectType);
         });
 
-        it("returns description with a class which has description metadata", function () {
-            class Obj { @D.Field() title: string; }
+        it("returns description with a class which has description metadata", () => {
+            class Obj {
+                @D.Field() public title: string;
+            }
+
             const actual = fieldTypeFactory(Obj, {name: "title", description: "this is a title"});
             assert(actual.description === "this is a title");
         });
 
-        it("returns resolve function with a class which has a function field", function() {
-            class Obj { @D.Field() title(): string { return "hello"; } }
+        it("returns resolve function with a class which has a function field", () => {
+            class Obj {
+                @D.Field()
+                public title(): string {
+                    return "hello";
+                }
+            }
+
             const actual = fieldTypeFactory(Obj, {name: "title"});
             assert(!!actual.resolve);
         });
     });
 
-    describe("with explicit type", function() {
-        it("returns any type which is set by explicitly", function() {
-            class Obj { @D.Field() id: string; }
+    describe("with explicit type", () => {
+        it("returns any type which is set by explicitly", () => {
+            class Obj {
+                @D.Field() public id: string;
+            }
+
             const actual = fieldTypeFactory(Obj, {name: "id", explicitType: graphql.GraphQLID});
             assert(actual.type instanceof graphql.GraphQLScalarType);
             assert(actual.type.name === "ID");
         });
 
-        it("returns GraphQLObjectType with a class which has a field of a class annotated @ObjectType", function() {
-            @D.ObjectType() class ChildObj { @D.Field() title: string; }
-            class ParentObj { @D.Field({type: ChildObj}) child: any; }
+        it("returns GraphQLObjectType with a class which has a field of a class annotated @ObjectType", () => {
+            @D.ObjectType()
+            class ChildObj {
+                @D.Field() public title: string;
+            }
+
+            class ParentObj {
+                @D.Field({type: ChildObj}) public child: any;
+            }
+
             const actual = fieldTypeFactory(ParentObj, {name: "child", explicitType: ChildObj});
             assert(actual.type instanceof graphql.GraphQLObjectType);
         });
 
-        it("returns resolve function with a class which has a function field", function() {
-            class Obj { @D.Field() title() { return "hello"; } }
+        it("returns resolve function with a class which has a function field", () => {
+            class Obj {
+                @D.Field()
+                public title() {
+                    return "hello";
+                }
+            }
+
             const actual = fieldTypeFactory(Obj, {name: "title", explicitType: graphql.GraphQLString});
             assert(!!actual.resolve);
         });
     });
 
-    describe("with metadata options", function() {
-        it("returns GraphQLNonNull with isNonNull option", function() {
-            class Obj { @D.Field() title: string; }
+    describe("with metadata options", () => {
+        it("returns GraphQLNonNull with isNonNull option", () => {
+            class Obj {
+                @D.Field() public title: string;
+            }
+
             const actual = fieldTypeFactory(Obj, {name: "title", isNonNull: true});
             assert(actual.type instanceof graphql.GraphQLNonNull);
         });
 
-        it("returns GraphQLList with isList option", function() {
-            class Obj { @D.Field() users: string[]; }
+        it("returns GraphQLList with isList option", () => {
+            class Obj {
+                @D.Field() public users: string[];
+            }
+
             const actual = fieldTypeFactory(Obj, {name: "title", isList: true, explicitType: graphql.GraphQLString});
             assert(actual.type instanceof graphql.GraphQLList);
         });
 
-        it("returns GraphQLNonNull with isList and isNonNull option", function() {
-            class Obj { @D.Field() users: string[]; }
-            const actual = fieldTypeFactory(Obj, {name: "title", isNonNull: true, isList: true, explicitType: graphql.GraphQLString});
+        it("returns GraphQLNonNull with isList and isNonNull option", () => {
+            class Obj {
+                @D.Field() public users: string[];
+            }
+
+            const actual = fieldTypeFactory(Obj, {
+                name: "title",
+                isNonNull: true,
+                isList: true,
+                explicitType: graphql.GraphQLString,
+            });
             assert(actual.type instanceof graphql.GraphQLNonNull);
         });
     });

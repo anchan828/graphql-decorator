@@ -1,6 +1,6 @@
-import { FieldTypeMetadata , GQ_QUERY_KEY , GQ_MUTATION_KEY } from "./decorator";
-import { objectTypeFactory } from "./object_type_factory";
-const graphql = require("graphql");
+import {GraphQLSchema} from "graphql";
+import {GQ_MUTATION_KEY, GQ_QUERY_KEY} from "./decorator";
+import {objectTypeFactory} from "./object_type_factory";
 
 export enum SchemaFactoryErrorType {
     NO_SCHEMA_ANNOTATION,
@@ -17,7 +17,7 @@ export class SchemaFactoryError extends Error {
     }
 }
 
-export function schemaFactory(target: Function) {
+export function schemaFactory(target: any) {
     if (!Reflect.hasMetadata("gq_schema", target)) {
         throw new SchemaFactoryError("The argument of schemaFactory should be annotated @Schema() decorator", SchemaFactoryErrorType.NO_SCHEMA_ANNOTATION);
     }
@@ -25,17 +25,17 @@ export function schemaFactory(target: Function) {
         throw new SchemaFactoryError("Target should has @Query field", SchemaFactoryErrorType.NO_QUERY_FIELD);
     }
     const queryKey = Reflect.getMetadata(GQ_QUERY_KEY, target.prototype) as string;
-    const queryTypeFn = Reflect.getMetadata("design:type", target.prototype, queryKey) as Function;
+    const queryTypeFn = Reflect.getMetadata("design:type", target.prototype, queryKey);
 
     if (!Reflect.hasMetadata(GQ_MUTATION_KEY, target.prototype)) {
-        const ret = new graphql.GraphQLSchema({
+        const ret = new GraphQLSchema({
             query: objectTypeFactory(queryTypeFn),
         });
         return ret;
     } else {
         const mutationKey = Reflect.getMetadata(GQ_MUTATION_KEY, target.prototype) as string;
-        const mutationTypeFn = Reflect.getMetadata("design:type", target.prototype, mutationKey) as Function;
-        return new graphql.GraphQLSchema({
+        const mutationTypeFn = Reflect.getMetadata("design:type", target.prototype, mutationKey);
+        return new GraphQLSchema({
             query: objectTypeFactory(queryTypeFn),
             mutation: objectTypeFactory(mutationTypeFn),
         });

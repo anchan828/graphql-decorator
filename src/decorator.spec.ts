@@ -1,22 +1,35 @@
+import * as assert from "assert";
 import "reflect-metadata";
 import * as D from "./decorator";
-import * as assert from "assert";
-import { FieldTypeMetadata , GQ_FIELDS_KEY , getFieldMetadata , GQ_OBJECT_METADATA_KEY , ObjectTypeMetadata } from "./decorator";
+import {
+    FieldTypeMetadata,
+    getFieldMetadata,
+    GQ_FIELDS_KEY,
+    GQ_OBJECT_METADATA_KEY,
+    ObjectTypeMetadata,
+} from "./decorator";
 
-const graphql = require("graphql");
+import * as graphql from "graphql";
 
-describe("Decorators", function() {
-    describe("@ObjectType", function () {
-        it("creates a ObjectTypeMetadata which isInput is false", function () {
-            @D.ObjectType() class Obj { @D.Field() someField: any; }
+describe("Decorators", () => {
+    describe("@ObjectType", () => {
+        it("creates a ObjectTypeMetadata which isInput is false", () => {
+            @D.ObjectType()
+            class Obj {
+                @D.Field() public someField: any;
+            }
+
             const actual = Reflect.getMetadata(GQ_OBJECT_METADATA_KEY, Obj.prototype) as ObjectTypeMetadata;
             assert(actual.isInput === false);
             assert(actual.name === "Obj");
         });
 
-        it("sets description to ObjectTypeMetadata with @Description", function () {
+        it("sets description to ObjectTypeMetadata with @Description", () => {
             @D.Description("this is a object type") @D.ObjectType()
-            class Obj { @D.Field() someField: any; }
+            class Obj {
+                @D.Field() public someField: any;
+            }
+
             const actual = Reflect.getMetadata(GQ_OBJECT_METADATA_KEY, Obj.prototype) as ObjectTypeMetadata;
             assert(actual.isInput === false);
             assert(actual.name === "Obj");
@@ -24,52 +37,74 @@ describe("Decorators", function() {
         });
     });
 
-    describe("@InputObjectType", function () {
-        it("creates a ObjectTypeMetadata which isInput is true", function () {
-            @D.InputObjectType() class Obj { @D.Field() someField: any; }
+    describe("@InputObjectType", () => {
+        it("creates a ObjectTypeMetadata which isInput is true", () => {
+            @D.InputObjectType()
+            class Obj {
+                @D.Field() public someField: any;
+            }
+
             const actual = Reflect.getMetadata(GQ_OBJECT_METADATA_KEY, Obj.prototype) as ObjectTypeMetadata;
             assert(actual.isInput === true);
             assert(actual.name === "Obj");
         });
     });
 
-    describe("@Field", function() {
-        it("creates empty FieldTypeMetadata", function() {
-            class Obj { @D.Field() someField: any; }
+    describe("@Field", () => {
+        it("creates empty FieldTypeMetadata", () => {
+            class Obj {
+                @D.Field() public someField: any;
+            }
+
             const actual = getFieldMetadata(Obj.prototype, "someField");
             assert(actual.name === "someField");
         });
 
-        it("sets explicitType to FieldTypeMetadata with type option", function() {
-            class Obj { @D.Field({type: graphql.GraphQLID}) someField: any; }
+        it("sets explicitType to FieldTypeMetadata with type option", () => {
+            class Obj {
+                @D.Field({type: graphql.GraphQLID}) public someField: any;
+            }
+
             const actual = getFieldMetadata(Obj.prototype, "someField");
             assert(actual.name === "someField");
             assert(actual.explicitType === graphql.GraphQLID);
         });
 
-        it("sets description to FieldTypeMetadata with @Description", function() {
-            class Obj { @D.Description("some field") @D.Field() someField: any; }
+        it("sets description to FieldTypeMetadata with @Description", () => {
+            class Obj {
+                @D.Description("some field") @D.Field() public someField: any;
+            }
+
             const actual = getFieldMetadata(Obj.prototype, "someField");
             assert(actual.name === "someField");
             assert(actual.description === "some field");
         });
 
-        it("sets isNonull to FieldTypeMetadata with @NonNull", function() {
-            class Obj { @D.NonNull() @D.Field() someField: any; }
+        it("sets isNonull to FieldTypeMetadata with @NonNull", () => {
+            class Obj {
+                @D.NonNull() @D.Field() public someField: any;
+            }
+
             const actual = getFieldMetadata(Obj.prototype, "someField");
             assert(actual.name === "someField");
             assert(actual.isNonNull === true);
         });
 
-        it("sets isList to FieldTypeMetadata with @List", function() {
-            class Obj { @D.List() @D.Field() someField: Array<any>; }
+        it("sets isList to FieldTypeMetadata with @List", () => {
+            class Obj {
+                @D.List() @D.Field() public someField: any[];
+            }
+
             const actual = getFieldMetadata(Obj.prototype, "someField");
             assert(actual.name === "someField");
             assert(actual.isList === true);
         });
 
-        it("sets complex FieldTypeMetadata", function() {
-            class Obj { @D.NonNull() @D.Field({type: graphql.GraphQLID}) someField: any; }
+        it("sets complex FieldTypeMetadata", () => {
+            class Obj {
+                @D.NonNull() @D.Field({type: graphql.GraphQLID}) public someField: any;
+            }
+
             const actual = getFieldMetadata(Obj.prototype, "someField");
             assert(actual.name === "someField");
             assert(actual.explicitType === graphql.GraphQLID);
@@ -77,29 +112,53 @@ describe("Decorators", function() {
         });
     });
 
-    describe("@Arg", function() {
-        it("creates FieldTypeMetadata whose has args", function() {
-            class Obj { @D.Field() someFunction(@D.Arg({name: "input"}) input: any) { } }
+    describe("@Arg", () => {
+        it("creates FieldTypeMetadata whose has args", () => {
+            class Obj {
+                @D.Field()
+                public someFunction(@D.Arg({name: "input"}) input: any) {
+                    // No body
+                }
+            }
+
             const actual = getFieldMetadata(Obj.prototype, "someFunction").args[0];
             assert(actual.name === "input");
         });
 
-        it("sets description to ArgumentMetadata with @Description", function() {
-            class Obj { @D.Field() someFunction(@D.Description("some input") @D.Arg({name: "input"}) input: any) { } }
+        it("sets description to ArgumentMetadata with @Description", () => {
+            class Obj {
+                @D.Field()
+                public someFunction(@D.Description("some input") @D.Arg({name: "input"}) input: any) {
+                    // No body
+                }
+            }
+
             const actual = getFieldMetadata(Obj.prototype, "someFunction").args[0];
             assert(actual.name === "input");
             assert(actual.description === "some input");
         });
 
-        it("sets isNonNull to ArgumentMetadata with @NonNull", function() {
-            class Obj { @D.Field() someFunction(@D.NonNull() @D.Arg({name: "input"}) input: any) { } }
+        it("sets isNonNull to ArgumentMetadata with @NonNull", () => {
+            class Obj {
+                @D.Field()
+                public someFunction(@D.NonNull() @D.Arg({name: "input"}) input: any) {
+                    // No body
+                }
+            }
+
             const actual = getFieldMetadata(Obj.prototype, "someFunction").args[0];
             assert(actual.name === "input");
             assert(actual.isNonNull === true);
         });
 
-        it("sets isNonNull to ArgumentMetadata with @List", function() {
-            class Obj { @D.Field() someFunction(@D.List() @D.Arg({name: "input"}) input: any) { } }
+        it("sets isNonNull to ArgumentMetadata with @List", () => {
+            class Obj {
+                @D.Field()
+                public someFunction(@D.List() @D.Arg({name: "input"}) input: any) {
+                    // No body
+                }
+            }
+
             const actual = getFieldMetadata(Obj.prototype, "someFunction").args[0];
             assert(actual.name === "input");
             assert(actual.isList === true);

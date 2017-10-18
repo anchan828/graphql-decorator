@@ -1,9 +1,9 @@
 import "reflect-metadata";
 
-export const GQ_QUERY_KEY                   = "gq_query";
-export const GQ_MUTATION_KEY                = "gq_mutation";
-export const GQ_FIELDS_KEY                  = "gq_fields";
-export const GQ_OBJECT_METADATA_KEY         = "gq_object_type";
+export const GQ_QUERY_KEY = "gq_query";
+export const GQ_MUTATION_KEY = "gq_mutation";
+export const GQ_FIELDS_KEY = "gq_fields";
+export const GQ_OBJECT_METADATA_KEY = "gq_object_type";
 
 export interface TypeMetadata {
     name?: string;
@@ -52,7 +52,7 @@ function createOrSetFieldTypeMetadata(target: any, metadata: FieldTypeMetadata) 
     } else {
         fieldDefs = Reflect.getMetadata(GQ_FIELDS_KEY, target);
     }
-    const def = fieldDefs.find(def => def.name === metadata.name);
+    const def = fieldDefs.find((d) => d.name === metadata.name);
     if (!def) {
         fieldDefs.push(metadata);
     } else {
@@ -73,7 +73,7 @@ export function getFieldMetadata(target: any, name: string) {
     if (!Reflect.hasMetadata(GQ_FIELDS_KEY, target)) {
         return null;
     }
-    return (<FieldTypeMetadata[]>Reflect.getMetadata(GQ_FIELDS_KEY, target)).find(m => m.name === name);
+    return (Reflect.getMetadata(GQ_FIELDS_KEY, target) as FieldTypeMetadata[]).find((m) => m.name === name);
 }
 
 function setArgumentMetadata(target: any, propertyKey: any, index: number, metadata: ArgumentMetadata) {
@@ -91,34 +91,34 @@ function setArgumentMetadata(target: any, propertyKey: any, index: number, metad
 }
 
 export function ObjectType() {
-    return function(target: any) {
+    return (target: any) => {
         createOrSetObjectTypeMetadata(target, {
             name: target.name,
             isInput: false,
         });
-    } as Function;
+    };
 }
 
 export function InputObjectType() {
-    return function(target: any) {
+    return (target: any) => {
         createOrSetObjectTypeMetadata(target, {
             name: target.name,
             isInput: true,
         });
-    } as Function;
+    };
 }
 
 export function Field(option?: FieldOption) {
-    return function(target: any, propertyKey: any) {
+    return (target: any, propertyKey: any) => {
         createOrSetFieldTypeMetadata(target, {
             name: propertyKey,
             explicitType: option && option.type,
         });
-    } as Function;
+    };
 }
 
 export function NonNull() {
-    return function(target: any, propertyKey: any, index?: number) {
+    return (target: any, propertyKey: any, index?: number) => {
         if (index >= 0) {
             setArgumentMetadata(target, propertyKey, index, {
                 isNonNull: true,
@@ -129,11 +129,11 @@ export function NonNull() {
                 isNonNull: true,
             });
         }
-    } as Function;
+    };
 }
 
 export function List() {
-    return function(target: any, propertyKey: any, index?: number) {
+    return (target: any, propertyKey: any, index?: number) => {
         if (index >= 0) {
             setArgumentMetadata(target, propertyKey, index, {
                 isList: true,
@@ -144,20 +144,20 @@ export function List() {
                 isList: true,
             });
         }
-    } as Function;
+    };
 }
 
 export function Arg(option: ArgumentOption) {
-    return function(target: any, propertyKey: any, index: number) {
+    return (target: any, propertyKey: any, index: number) => {
         setArgumentMetadata(target, propertyKey, index, {
             name: option.name,
             explicitType: option.type,
         });
-    } as Function;
+    };
 }
 
 export function Description(body: string) {
-    return function(target: any, propertyKey?: any, index?: number) {
+    return (target: any, propertyKey?: any, index?: number) => {
         if (index >= 0) {
             setArgumentMetadata(target, propertyKey, index, {
                 description: body,
@@ -172,23 +172,23 @@ export function Description(body: string) {
                 description: body,
             });
         }
-    } as Function;
+    };
 }
 
 export function Query(option?: any) {
-    return function(target: any, propertyKey: any) {
+    return (target: any, propertyKey: any) => {
         Reflect.defineMetadata(GQ_QUERY_KEY, propertyKey, target);
-    } as Function;
+    };
 }
 
 export function Mutation() {
-    return function(target: any, propertyKey: any) {
+    return (target: any, propertyKey: any) => {
         Reflect.defineMetadata(GQ_MUTATION_KEY, propertyKey, target);
-    } as Function;
+    };
 }
 
 export function Schema() {
-    return function(target: Function) {
+    return (target: any) => {
         Reflect.defineMetadata("gq_schema", {}, target);
-    } as Function;
+    };
 }

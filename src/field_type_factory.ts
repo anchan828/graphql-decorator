@@ -1,22 +1,23 @@
-import { FieldTypeMetadata , ArgumentMetadata ,  GQ_OBJECT_METADATA_KEY , TypeMetadata } from "./decorator";
-import { objectTypeFactory } from "./object_type_factory";
-import { SchemaFactoryError , SchemaFactoryErrorType } from "./schema_factory";
-const graphql = require("graphql");
+import {ArgumentMetadata, FieldTypeMetadata, GQ_OBJECT_METADATA_KEY, TypeMetadata} from "./decorator";
+import {objectTypeFactory} from "./object_type_factory";
+import {SchemaFactoryError, SchemaFactoryErrorType} from "./schema_factory";
+
+import * as graphql from "graphql";
 
 export interface ResolverHolder {
-    fn: Function;
-    argumentConfigMap: {[name: string]: any; };
+    fn: any;
+    argumentConfigMap: { [name: string]: any; };
 }
 
-function convertType(typeFn: Function, metadata: TypeMetadata, isInput: boolean) {
+function convertType(typeFn: any, metadata: TypeMetadata, isInput: boolean) {
     let returnType: any;
     if (!metadata.explicitType) {
         if (typeFn === Number) {
             returnType = graphql.GraphQLInt;     // FIXME or float?
         } else if (typeFn === String) {
-             returnType = graphql.GraphQLString;
+            returnType = graphql.GraphQLString;
         } else if (typeFn === Boolean) {
-             returnType = graphql.GraphQLBoolean;
+            returnType = graphql.GraphQLBoolean;
         } else if (typeFn && typeFn.prototype && Reflect.hasMetadata(GQ_OBJECT_METADATA_KEY, typeFn.prototype)) {
             // recursively call objectFactory
             returnType = objectTypeFactory(typeFn, isInput);
@@ -28,7 +29,9 @@ function convertType(typeFn: Function, metadata: TypeMetadata, isInput: boolean)
             returnType = objectTypeFactory(returnType, isInput);
         }
     }
-    if (!returnType) return null;
+    if (!returnType) {
+        return null;
+    }
     if (metadata.isList) {
         returnType = new graphql.GraphQLList(returnType);
     }
@@ -38,10 +41,10 @@ function convertType(typeFn: Function, metadata: TypeMetadata, isInput: boolean)
     return returnType;
 }
 
-export function resolverFactory(target: Function, name: string, argumentMetadataList: ArgumentMetadata[]): ResolverHolder {
-    const params = Reflect.getMetadata("design:paramtypes", target.prototype, name) as Function[];
-    const argumentConfigMap: {[name: string]: any; } = {};
-    const indexMap: {[name: string]: number; } = {};
+export function resolverFactory(target: any, name: string, argumentMetadataList: ArgumentMetadata[]): ResolverHolder {
+    const params = Reflect.getMetadata("design:paramtypes", target.prototype, name) as Array<() => void>;
+    const argumentConfigMap: { [name: string]: any; } = {};
+    const indexMap: { [name: string]: number; } = {};
     params.forEach((paramFn, index) => {
         const metadata = argumentMetadataList[index];
         argumentConfigMap[metadata.name] = {
@@ -50,14 +53,14 @@ export function resolverFactory(target: Function, name: string, argumentMetadata
         };
         indexMap[metadata.name] = index;
     });
-    const originalFn = target.prototype[name] as Function;
-    const fn = function(source: any, args: {[name: string]: any; }, context: any, info: any) {
+    const originalFn = target.prototype[name] as any;
+    const fn = (source: any, args: { [name: string]: any; }, context: any, info: any) => {
         const rest: any[] = [];
         // TODO inject context and info to rest arguments
-        Object.keys(args).forEach(name => {
-            const index = indexMap[name];
+        Object.keys(args).forEach((key) => {
+            const index = indexMap[key];
             if (index >= 0) {
-                rest[index] = args[name];
+                rest[index] = args[key];
             }
         });
         return originalFn.apply(source, rest);
@@ -67,9 +70,10 @@ export function resolverFactory(target: Function, name: string, argumentMetadata
     };
 }
 
-export function fieldTypeFactory(target: Function, metadata: FieldTypeMetadata, isInput?: boolean) {
-    let typeFn = Reflect.getMetadata("design:type", target.prototype, metadata.name) as Function;
-    let resolveFn: Function, args: {[name: string]: any; };
+export function fieldTypeFactory(target: any, metadata: FieldTypeMetadata, isInput?: boolean) {
+    let typeFn = Reflect.getMetadata("design:type", target.prototype, metadata.name) as any;
+    let resolveFn: any;
+    let args: { [name: string]: any; };
 
     const description = metadata.description;
     const isFunctionType = Reflect.getMetadata("design:type", target.prototype, metadata.name) === Function;
@@ -81,7 +85,7 @@ export function fieldTypeFactory(target: Function, metadata: FieldTypeMetadata, 
 
     if (isFunctionType) {
         if (!metadata.explicitType) {
-            typeFn = Reflect.getMetadata("design:returntype", target.prototype, metadata.name) as Function;
+            typeFn = Reflect.getMetadata("design:returntype", target.prototype, metadata.name) as any;
         }
         const resolverHolder = resolverFactory(target, metadata.name, metadata.args);
         resolveFn = resolverHolder.fn;
@@ -89,7 +93,9 @@ export function fieldTypeFactory(target: Function, metadata: FieldTypeMetadata, 
     }
 
     const fieldType = convertType(typeFn, metadata, isInput);
-    if (!fieldType) return null;
+    if (!fieldType) {
+        return null;
+    }
     return {
         type: fieldType,
         description: description && description,
