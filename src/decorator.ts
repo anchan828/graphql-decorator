@@ -1,9 +1,10 @@
 import "reflect-metadata";
 
-export const GQ_QUERY_KEY = "gq_query";
-export const GQ_MUTATION_KEY = "gq_mutation";
-export const GQ_FIELDS_KEY = "gq_fields";
-export const GQ_OBJECT_METADATA_KEY = "gq_object_type";
+export const GQ_QUERY_KEY = Symbol("gq_query");
+export const GQ_MUTATION_KEY = Symbol("gq_mutation");
+export const GQ_FIELDS_KEY = Symbol("gq_fields");
+export const GQ_OBJECT_METADATA_KEY = Symbol("gq_object_type");
+export const GQ_SCHEMA_KEY = Symbol("gq_schema");
 
 export interface TypeMetadata {
     name?: string;
@@ -118,8 +119,8 @@ export function Field(option?: FieldOption) {
 }
 
 export function NonNull() {
-    return (target: any, propertyKey: any, index?: number) => {
-        if (index >= 0) {
+    return (target: any, propertyKey: any, index?: any) => {
+        if (index >= 0 && typeof index === "number") {
             setArgumentMetadata(target, propertyKey, index, {
                 isNonNull: true,
             });
@@ -133,8 +134,8 @@ export function NonNull() {
 }
 
 export function List() {
-    return (target: any, propertyKey: any, index?: number) => {
-        if (index >= 0) {
+    return (target: any, propertyKey: any, index?: any) => {
+        if (index >= 0 && typeof index === "number") {
             setArgumentMetadata(target, propertyKey, index, {
                 isList: true,
             });
@@ -157,8 +158,8 @@ export function Arg(option: ArgumentOption) {
 }
 
 export function Description(body: string) {
-    return (target: any, propertyKey?: any, index?: number) => {
-        if (index >= 0) {
+    return (target: any, propertyKey?: any, index?: any): any => {
+        if (index >= 0 && typeof index === "number") {
             setArgumentMetadata(target, propertyKey, index, {
                 description: body,
             });
@@ -189,6 +190,6 @@ export function Mutation() {
 
 export function Schema() {
     return (target: any) => {
-        Reflect.defineMetadata("gq_schema", {}, target);
+        Reflect.defineMetadata(GQ_SCHEMA_KEY, {}, target);
     };
 }

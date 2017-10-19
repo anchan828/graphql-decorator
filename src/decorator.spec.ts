@@ -27,7 +27,7 @@ describe("Decorators", () => {
         it("sets description to ObjectTypeMetadata with @Description", () => {
             @D.Description("this is a object type") @D.ObjectType()
             class Obj {
-                @D.Field() public someField: any;
+                @D.Field() @D.Description("this is description of field") public someField: any;
             }
 
             const actual = Reflect.getMetadata(GQ_OBJECT_METADATA_KEY, Obj.prototype) as ObjectTypeMetadata;

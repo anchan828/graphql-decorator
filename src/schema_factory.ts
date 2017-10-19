@@ -1,5 +1,5 @@
 import {GraphQLSchema} from "graphql";
-import {GQ_MUTATION_KEY, GQ_QUERY_KEY} from "./decorator";
+import {GQ_MUTATION_KEY, GQ_QUERY_KEY, GQ_SCHEMA_KEY} from "./decorator";
 import {objectTypeFactory} from "./object_type_factory";
 
 export enum SchemaFactoryErrorType {
@@ -18,7 +18,7 @@ export class SchemaFactoryError extends Error {
 }
 
 export function schemaFactory(target: any) {
-    if (!Reflect.hasMetadata("gq_schema", target)) {
+    if (!Reflect.hasMetadata(GQ_SCHEMA_KEY, target)) {
         throw new SchemaFactoryError("The argument of schemaFactory should be annotated @Schema() decorator", SchemaFactoryErrorType.NO_SCHEMA_ANNOTATION);
     }
     if (!Reflect.hasMetadata(GQ_QUERY_KEY, target.prototype)) {
