@@ -1,12 +1,13 @@
 {
-  "name": "graphql-decorator",
-  "version": "0.2.0",
-  "description": "Creates GraphQL Schema from decorated TypeScript Class. [Note] this package forked from https://github.com/Quramy/graphql-decorator",
+  "name": "@anchan828/graphql-decorator",
+  "version": "0.0.1",
+  "description": "Creates GraphQL Schema from decorated TypeScript Class. [Note] This package forked from https://github.com/Quramy/graphql-decorator",
   "main": "lib/index.js",
   "engines": {
     "node": ">=4.4.0"
   },
   "scripts": {
+    "prepublish": "npm run lint && npm run build",
     "build": "rimraf lib && tsc",
     "lint": "tslint \"src/**/*.ts\"",
     "lint:fix": "tslint --fix \"src/**/*.ts\"",
@@ -41,5 +42,5 @@
     "tslint": "^5.7.0",
     "typescript": "^2.5.3"
   },
-  "typings": "lib/index.d.ts"
+  "typings": "./lib/index.d.ts"
 }
