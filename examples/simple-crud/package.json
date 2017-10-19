@@ -4,24 +4,25 @@
   "description": "CRUD example of graphql-decortor",
   "main": "index.js",
   "scripts": {
-    "postinstall": "dtsm install",
     "compile": "tsc",
     "start": "npm run compile && node .built/server.js",
     "print": "npm run compile && node .built/print.js"
   },
   "dependencies": {
-    "express": "^4.14.0",
-    "express-graphql": "^0.5.3",
-    "graphql": "^0.6.0",
-    "graphql-decorator": "file:../../",
-    "typescript": "^1.8.10"
+    "@anchan828/graphql-decorator": "file:../..",
+    "express": "^4.16.2",
+    "graphql": "^0.11.7"
   },
   "keywords": [],
   "author": "Quramy",
-  "license": "ISC",
+  "contributors": [
+    "anchan828"
+  ],
+  "license": "MIT",
   "devDependencies": {
-    "@types/express": "^4.0.23-alpha",
-    "@types/node": "^4.0.22-alpha",
-    "dtsm": "^1.1.0"
+    "@types/express": "^4.0.37",
+    "@types/node": "^8.0.45",
+    "express-graphql": "^0.6.11",
+    "typescript": "^2.5.3"
   }
 }

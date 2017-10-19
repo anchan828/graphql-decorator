@@ -1,5 +1,5 @@
-import { schema } from "./schema";
-const printSchema = require("graphql/utilities").printSchema;
+import {printSchema} from "graphql";
+import {schema} from "./schema";
 
 function main() {
     console.log(printSchema(schema));

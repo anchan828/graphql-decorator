@@ -1,12 +1,13 @@
 /* main.ts */
 
-import { Schema, Query, ObjectType, Field, schemaFactory } from "graphql-decorator";
-const graphql = require("graphql").graphql;
+import {Field, ObjectType, Query, Schema, schemaFactory} from "@anchan828/graphql-decorator";
+import {graphql} from "graphql";
 
 // @ObjectType creates GraphQLObjectType from a class
 @ObjectType()
 class QueryType {
-    @Field() greeting(): string {
+    @Field()
+    public greeting(): string {
         return "Hello, world!";
     }
 }
@@ -15,7 +16,7 @@ class QueryType {
 // The class should have a field annotated by @Query decorator.
 @Schema()
 class SchemaType {
-    @Query() query: QueryType;
+    @Query() public query: QueryType;
 }
 
 async function main() {

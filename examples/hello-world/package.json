@@ -8,18 +8,21 @@
     "start": "node .built/main.js"
   },
   "dependencies": {
-    "graphql": "^0.6.0",
-    "graphql-decorator": "file:../../",
-    "typescript": "^1.8.10"
+    "@anchan828/graphql-decorator": "file:../..",
+    "graphql": "^0.6.2"
   },
   "keywords": [],
   "author": "Quramy",
+  "contributors": [
+    "anchan828"
+  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Quramy/graphql-decorator.git"
+    "url": "https://github.com/anchan828/graphql-decorator.git"
   },
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
-    "@types/node": "^4.0.22-alpha"
+    "@types/node": "^8.0.45",
+    "typescript": "^2.5.3"
   }
 }
