@@ -1,9 +1,9 @@
 import {GraphQLInputObjectType, GraphQLObjectType} from "graphql";
-import { FieldTypeMetadata , GQ_FIELDS_KEY , GQ_OBJECT_METADATA_KEY , ObjectTypeMetadata } from "./decorator";
-import { fieldTypeFactory } from "./field_type_factory";
-import { SchemaFactoryError , SchemaFactoryErrorType } from "./schema_factory";
+import {FieldTypeMetadata, GQ_FIELDS_KEY, GQ_OBJECT_METADATA_KEY, ObjectTypeMetadata} from "./decorator";
+import {fieldTypeFactory} from "./field_type_factory";
+import {SchemaFactoryError, SchemaFactoryErrorType} from "./schema_factory";
 
-let objectTypeRepository: {[key: string]: any} = {};
+let objectTypeRepository: { [key: string]: any } = {};
 
 export function clearObjectTypeRepository() {
     objectTypeRepository = {};
@@ -23,7 +23,7 @@ export function objectTypeFactory(target: any, isInput?: boolean) {
         throw new SchemaFactoryError("Class annotated by @ObjectType() should has one or more fields annotated by @Filed()", SchemaFactoryErrorType.NO_FIELD);
     }
     const fieldMetadataList = Reflect.getMetadata(GQ_FIELDS_KEY, target.prototype) as FieldTypeMetadata[];
-    const fields: {[key: string]: any} = {};
+    const fields: { [key: string]: any } = {};
     fieldMetadataList.forEach((def) => {
         fields[def.name] = fieldTypeFactory(target, def);
     });

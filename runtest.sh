@@ -6,6 +6,7 @@ fi
 
 cd examples/hello-world/
 
+rm -rf node_modules package-lock.json
 npm install
 npm start
 
@@ -16,6 +17,7 @@ cd ../../
 
 cd examples/simple-crud
 
+rm -rf node_modules package-lock.json
 npm install
 npm run print
 

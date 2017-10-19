@@ -8,7 +8,7 @@
     "start": "node .built/main.js"
   },
   "dependencies": {
-    "@anchan828/graphql-decorator": "file:../..",
+    "@anchan828/graphql-decorator": "^0.0.2",
     "graphql": "^0.6.2"
   },
   "keywords": [],

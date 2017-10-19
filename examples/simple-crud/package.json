@@ -9,7 +9,7 @@
     "print": "npm run compile && node .built/print.js"
   },
   "dependencies": {
-    "@anchan828/graphql-decorator": "file:../..",
+    "@anchan828/graphql-decorator": "^0.0.2",
     "express": "^4.16.2",
     "graphql": "^0.11.7"
   },
@@ -21,6 +21,8 @@
   "license": "MIT",
   "devDependencies": {
     "@types/express": "^4.0.37",
+    "@types/express-graphql": "0.0.34",
+    "@types/graphql": "^0.11.5",
     "@types/node": "^8.0.45",
     "express-graphql": "^0.6.11",
     "typescript": "^2.5.3"

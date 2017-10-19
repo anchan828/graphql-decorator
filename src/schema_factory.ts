@@ -28,10 +28,9 @@ export function schemaFactory(target: any) {
     const queryTypeFn = Reflect.getMetadata("design:type", target.prototype, queryKey);
 
     if (!Reflect.hasMetadata(GQ_MUTATION_KEY, target.prototype)) {
-        const ret = new GraphQLSchema({
+        return new GraphQLSchema({
             query: objectTypeFactory(queryTypeFn),
         });
-        return ret;
     } else {
         const mutationKey = Reflect.getMetadata(GQ_MUTATION_KEY, target.prototype) as string;
         const mutationTypeFn = Reflect.getMetadata("design:type", target.prototype, mutationKey);

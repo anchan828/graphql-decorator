@@ -13,14 +13,14 @@ import {
 } from "@anchan828/graphql-decorator";
 
 import {createHash} from "crypto";
-import {GraphQLID, GraphQLString} from "graphql";
+import {GraphQLID, GraphQLObjectType, GraphQLString, printSchema} from "graphql";
 import {users as data} from "./data";
 
 let users = data.slice();
 
 @ObjectType()
 @Description("A user type.")
-class User {
+export class User {
     @NonNull() @Field() public id: string;
     @Field() public name: string;
     @NonNull() @Field() public email: string;
@@ -28,31 +28,35 @@ class User {
 
 @ObjectType()
 @Description("A root query.")
-class QueryType {
+export class QueryType {
     @Description("return all users.")
     @List() @Field({type: User})
     public allUsers(): User[] {
         return users;
     }
+    @Field()
+    public hello(): string {
+        return "world";
+    }
 }
 
 @InputObjectType()
 @Description("A input object to update a user.")
-class UserForUpdate {
+export class UserForUpdate {
     @Field() public name: string;
     @Field() public email: string;
 }
 
 @InputObjectType()
 @Description("A input object to create a user.")
-class UserForCreate {
+export class UserForCreate {
     @Field() public name: string;
     @NonNull() @Field() public email: string;
 }
 
 @ObjectType()
 @Description("Mutations.")
-class MutationType {
+export class MutationType {
 
     @Field({type: User})
     @Description("Update a user and return the changed user.")
@@ -91,9 +95,8 @@ class MutationType {
 }
 
 @Schema()
-class RootSchema {
+export class RootSchema {
     @Query() public query: QueryType;
     @Mutation() public mutation: MutationType;
 }
-
 export const schema = schemaFactory(RootSchema);

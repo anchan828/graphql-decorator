@@ -1,8 +1,7 @@
+import {GraphQLBoolean, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLString} from "graphql";
 import {ArgumentMetadata, FieldTypeMetadata, GQ_OBJECT_METADATA_KEY, TypeMetadata} from "./decorator";
 import {objectTypeFactory} from "./object_type_factory";
 import {SchemaFactoryError, SchemaFactoryErrorType} from "./schema_factory";
-
-import * as graphql from "graphql";
 
 export interface ResolverHolder {
     fn: any;
@@ -13,11 +12,11 @@ function convertType(typeFn: any, metadata: TypeMetadata, isInput: boolean) {
     let returnType: any;
     if (!metadata.explicitType) {
         if (typeFn === Number) {
-            returnType = graphql.GraphQLInt;     // FIXME or float?
+            returnType = GraphQLInt;     // FIXME or float?
         } else if (typeFn === String) {
-            returnType = graphql.GraphQLString;
+            returnType = GraphQLString;
         } else if (typeFn === Boolean) {
-            returnType = graphql.GraphQLBoolean;
+            returnType = GraphQLBoolean;
         } else if (typeFn && typeFn.prototype && Reflect.hasMetadata(GQ_OBJECT_METADATA_KEY, typeFn.prototype)) {
             // recursively call objectFactory
             returnType = objectTypeFactory(typeFn, isInput);
@@ -33,10 +32,10 @@ function convertType(typeFn: any, metadata: TypeMetadata, isInput: boolean) {
         return null;
     }
     if (metadata.isList) {
-        returnType = new graphql.GraphQLList(returnType);
+        returnType = new GraphQLList(returnType);
     }
     if (metadata.isNonNull) {
-        returnType = new graphql.GraphQLNonNull(returnType);
+        returnType = new GraphQLNonNull(returnType);
     }
     return returnType;
 }

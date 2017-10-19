@@ -4,7 +4,7 @@ import * as D from "./decorator";
 import {clearObjectTypeRepository} from "./object_type_factory";
 import {schemaFactory, SchemaFactoryError, SchemaFactoryErrorType} from "./schema_factory";
 
-import {execute, parse, validate} from "graphql";
+import {execute, parse, printSchema, validate} from "graphql";
 
 describe("schemaFactory", () => {
     beforeEach(() => {
