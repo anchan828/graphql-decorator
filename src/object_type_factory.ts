@@ -11,6 +11,7 @@ export function clearObjectTypeRepository() {
 
 export function objectTypeFactory(target: any, isInput?: boolean) {
     const objectTypeMetadata = Reflect.getMetadata(GQ_OBJECT_METADATA_KEY, target.prototype) as ObjectTypeMetadata;
+
     const typeFromRepository = objectTypeRepository[objectTypeMetadata.name];
     if (typeFromRepository) {
         return typeFromRepository;
@@ -22,11 +23,22 @@ export function objectTypeFactory(target: any, isInput?: boolean) {
     if (!Reflect.hasMetadata(GQ_FIELDS_KEY, target.prototype)) {
         throw new SchemaFactoryError("Class annotated by @ObjectType() should has one or more fields annotated by @Filed()", SchemaFactoryErrorType.NO_FIELD);
     }
-    const fieldMetadataList = Reflect.getMetadata(GQ_FIELDS_KEY, target.prototype) as FieldTypeMetadata[];
+    let fieldMetadataList = Reflect.getMetadata(GQ_FIELDS_KEY, target.prototype) as FieldTypeMetadata[];
     const fields: { [key: string]: any } = {};
+
     fieldMetadataList.forEach((def) => {
         fields[def.name] = fieldTypeFactory(target, def);
     });
+
+    if (objectTypeMetadata.merge) {
+        for (const mergeObjectType of objectTypeMetadata.merge) {
+            fieldMetadataList = Reflect.getMetadata(GQ_FIELDS_KEY, mergeObjectType.prototype) as FieldTypeMetadata[];
+            fieldMetadataList.forEach((def) => {
+                fields[def.name] = fieldTypeFactory(mergeObjectType, def);
+            });
+        }
+    }
+
     if (!!isInput) {
         objectTypeRepository[objectTypeMetadata.name] = new GraphQLInputObjectType({
             name: objectTypeMetadata.name,

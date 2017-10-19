@@ -158,15 +158,24 @@ describe("schemaFactory", () => {
             }
         }
 
+        @D.ObjectType({merge: [Query]})
+        class Query2 {
+            @D.Field()
+            public add2(@D.Arg({name: "input"}) input: Input): number {
+                return input.a + input.b;
+            }
+        }
+
         @D.Schema()
         class Schema {
-            @D.Query() public query: Query;
+            @D.Query() public query: Query2;
         }
 
         const schema = schemaFactory(Schema);
         const ast = parse(
             `query {
                 add(input: {a: 1, b: 1})
+                add2(input: {a: 1, b: 1})
             }`,
         );
         assert.deepEqual(validate(schema, ast), []);

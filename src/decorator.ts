@@ -5,6 +5,11 @@ export const GQ_MUTATION_KEY = Symbol("gq_mutation");
 export const GQ_FIELDS_KEY = Symbol("gq_fields");
 export const GQ_OBJECT_METADATA_KEY = Symbol("gq_object_type");
 export const GQ_SCHEMA_KEY = Symbol("gq_schema");
+export const GQ_MERGE_QUERY_KEY = Symbol("gq_merge");
+
+export interface MergeOptionMetadata {
+    merge: any[];
+}
 
 export interface TypeMetadata {
     name?: string;
@@ -25,6 +30,7 @@ export interface ObjectTypeMetadata {
     name?: string;
     description?: string;
     isInput?: boolean;
+    merge?: any[];
 }
 
 function createOrSetObjectTypeMetadata(target: any, metadata: ObjectTypeMetadata) {
@@ -91,20 +97,22 @@ function setArgumentMetadata(target: any, propertyKey: any, index: number, metad
     }
 }
 
-export function ObjectType() {
+export function ObjectType(option?: MergeOptionMetadata) {
     return (target: any) => {
         createOrSetObjectTypeMetadata(target, {
             name: target.name,
             isInput: false,
+            ...option,
         });
     };
 }
 
-export function InputObjectType() {
+export function InputObjectType(option?: MergeOptionMetadata) {
     return (target: any) => {
         createOrSetObjectTypeMetadata(target, {
             name: target.name,
             isInput: true,
+            ...option,
         });
     };
 }
@@ -176,7 +184,7 @@ export function Description(body: string) {
     };
 }
 
-export function Query(option?: any) {
+export function Query() {
     return (target: any, propertyKey: any) => {
         Reflect.defineMetadata(GQ_QUERY_KEY, propertyKey, target);
     };
