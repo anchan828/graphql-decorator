@@ -6,8 +6,10 @@ export enum SchemaFactoryErrorType {
     NO_SCHEMA_ANNOTATION,
     NO_QUERY_FIELD,
     NO_FIELD,
+    NO_ENUM_VALUE,
     INVALID_OBJECT_TYPE_METADATA,
     INPUT_FIELD_SHOULD_NOT_BE_FUNC,
+    ENUM_VALUE_SHOULD_NOT_BE_FUNC,
 }
 
 export class SchemaFactoryError extends Error {

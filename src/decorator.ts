@@ -6,6 +6,8 @@ export const GQ_FIELDS_KEY = Symbol("gq_fields");
 export const GQ_OBJECT_METADATA_KEY = Symbol("gq_object_type");
 export const GQ_SCHEMA_KEY = Symbol("gq_schema");
 export const GQ_MERGE_QUERY_KEY = Symbol("gq_merge");
+export const GQ_ENUM_KEY = Symbol("gq_enum");
+export const GQ_ENUM_VALUE_KEY = Symbol("gq_enum_value");
 
 export interface MergeOptionMetadata {
     merge: any[];
@@ -34,6 +36,18 @@ export interface ContextMetadata extends ArgumentMetadata {
 }
 
 export interface RootMetadata extends ContextMetadata {
+}
+
+export interface EnumTypeMetadata {
+    name?: string;
+    description?: string;
+    values?: EnumValueMetadata[];
+}
+
+export interface EnumValueMetadata {
+    name: string;
+    value?: any;
+    description?: string;
 }
 
 export interface ObjectTypeMetadata {
@@ -120,6 +134,29 @@ function setRootMetadata(target: any, propertyKey: any, index: number, metadata:
     }
 }
 
+function createOrSetEnumMetadata(target: any, metadata: EnumTypeMetadata) {
+    if (!Reflect.hasMetadata(GQ_ENUM_KEY, target.prototype)) {
+        Reflect.defineMetadata(GQ_ENUM_KEY, metadata, target.prototype);
+    } else {
+        const originalMetadata = Reflect.getMetadata(GQ_ENUM_KEY, target.prototype) as EnumTypeMetadata;
+        Object.assign(originalMetadata, metadata);
+    }
+}
+
+function createOrSetEnumValueTypeMetadata(target: any, metadata: EnumValueMetadata) {
+    let valueDefs: EnumValueMetadata[];
+    if (!Reflect.hasMetadata(GQ_ENUM_VALUE_KEY, target)) {
+        valueDefs = [];
+        Reflect.defineMetadata(GQ_ENUM_VALUE_KEY, valueDefs, target);
+    } else {
+        valueDefs = Reflect.getMetadata(GQ_ENUM_VALUE_KEY, target);
+    }
+    const def = valueDefs.find((d) => d.name === metadata.name);
+    if (!def) {
+        valueDefs.push(metadata);
+    }
+}
+
 export function ObjectType(option?: MergeOptionMetadata) {
     return (target: any) => {
         createOrSetObjectTypeMetadata(target, {
@@ -183,6 +220,23 @@ export function List() {
                 isList: true,
             });
         }
+    };
+}
+
+export function Enum() {
+    return (target: any) => {
+        createOrSetEnumMetadata(target, {
+            name: target.name,
+        });
+    };
+}
+
+export function EnumValue(value?: any) {
+    return (target: any, propertyKey: any) => {
+        createOrSetEnumValueTypeMetadata(target, {
+            name: propertyKey,
+            value,
+        });
     };
 }
 

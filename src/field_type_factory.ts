@@ -1,8 +1,9 @@
 import {GraphQLBoolean, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLString} from "graphql";
 import {
-    ArgumentMetadata, ContextMetadata, FieldTypeMetadata, GQ_OBJECT_METADATA_KEY, RootMetadata,
+    ArgumentMetadata, ContextMetadata, FieldTypeMetadata, GQ_ENUM_KEY, GQ_OBJECT_METADATA_KEY, RootMetadata,
     TypeMetadata,
 } from "./decorator";
+import {enumTypeFactory} from "./enum_type_factory";
 import {objectTypeFactory} from "./object_type_factory";
 import {SchemaFactoryError, SchemaFactoryErrorType} from "./schema_factory";
 
@@ -29,6 +30,8 @@ function convertType(typeFn: any, metadata: TypeMetadata, isInput: boolean) {
         if (returnType && returnType.prototype && Reflect.hasMetadata(GQ_OBJECT_METADATA_KEY, returnType.prototype)) {
             // recursively call objectFactory
             returnType = objectTypeFactory(returnType, isInput);
+        }else if (returnType && returnType.prototype && Reflect.hasMetadata(GQ_ENUM_KEY, returnType.prototype)) {
+            returnType = enumTypeFactory(returnType);
         }
     }
     if (!returnType) {
