@@ -11,7 +11,7 @@ It provide the following features:
 This tool requires Node.js v4.4.0 or later.
 
 ```sh
-npm i graphql-decorator typescript
+npm i @anchan828/graphql-decorator
 ```
 
 This tool uses ES.next Decorators and Reflect, so create tsconfig.json :
