@@ -26,16 +26,18 @@ export function objectTypeFactory(target: any, isInput?: boolean) {
     let fieldMetadataList = Reflect.getMetadata(GQ_FIELDS_KEY, target.prototype) as FieldTypeMetadata[];
     const fields: { [key: string]: any } = {};
 
-    fieldMetadataList.forEach((def) => {
+    fieldMetadataList.filter((def) => def && def.name).forEach((def) => {
         fields[def.name] = fieldTypeFactory(target, def);
     });
 
     if (objectTypeMetadata.merge) {
         for (const mergeObjectType of objectTypeMetadata.merge) {
             fieldMetadataList = Reflect.getMetadata(GQ_FIELDS_KEY, mergeObjectType.prototype) as FieldTypeMetadata[];
-            fieldMetadataList.forEach((def) => {
-                fields[def.name] = fieldTypeFactory(mergeObjectType, def);
-            });
+            if (fieldMetadataList && Array.isArray(fieldMetadataList)) {
+                fieldMetadataList.filter((def) => def && def.name).forEach((def) => {
+                    fields[def.name] = fieldTypeFactory(mergeObjectType, def);
+                });
+            }
         }
     }
 

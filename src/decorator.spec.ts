@@ -6,7 +6,7 @@ import {
     getFieldMetadata,
     GQ_FIELDS_KEY,
     GQ_OBJECT_METADATA_KEY,
-    ObjectTypeMetadata,
+    ObjectTypeMetadata, Root,
 } from "./decorator";
 
 import * as graphql from "graphql";
@@ -162,6 +162,20 @@ describe("Decorators", () => {
             const actual = getFieldMetadata(Obj.prototype, "someFunction").args[0];
             assert(actual.name === "input");
             assert(actual.isList === true);
+        });
+    });
+
+    describe("@Root", () => {
+        it("creates @Root", () => {
+            class Obj {
+                @D.Field()
+                public someFunction(@Root() rootvalue: any, @D.Arg({name: "input"}) input: any) {
+                    // No body
+                }
+            }
+
+            const actual = getFieldMetadata(Obj.prototype, "someFunction").root;
+            assert(actual);
         });
     });
 });

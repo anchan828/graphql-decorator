@@ -24,6 +24,15 @@ export interface ArgumentMetadata extends TypeMetadata {
 
 export interface FieldTypeMetadata extends ArgumentMetadata {
     args?: ArgumentMetadata[];
+    root?: RootMetadata;
+    context?: ContextMetadata;
+}
+
+export interface ContextMetadata extends ArgumentMetadata {
+    index?: number;
+}
+
+export interface RootMetadata extends ContextMetadata {
 }
 
 export interface ObjectTypeMetadata {
@@ -97,6 +106,18 @@ function setArgumentMetadata(target: any, propertyKey: any, index: number, metad
     }
 }
 
+function setRootMetadata(target: any, propertyKey: any, index: number, metadata: ContextMetadata) {
+    const fieldMetadata = getFieldMetadata(target, propertyKey);
+    if (fieldMetadata && fieldMetadata.root) {
+        Object.assign(fieldMetadata.root, metadata);
+    } else {
+        createOrSetFieldTypeMetadata(target, {
+            name: propertyKey,
+            root: {index},
+        });
+    }
+}
+
 export function ObjectType(option?: MergeOptionMetadata) {
     return (target: any) => {
         createOrSetObjectTypeMetadata(target, {
@@ -162,6 +183,12 @@ export function Arg(option: ArgumentOption) {
             name: option.name,
             explicitType: option.type,
         });
+    };
+}
+
+export function Root() {
+    return (target: any, propertyKey: any, index: number) => {
+        setRootMetadata(target, propertyKey, index, {});
     };
 }
 

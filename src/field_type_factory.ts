@@ -1,5 +1,8 @@
 import {GraphQLBoolean, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLString} from "graphql";
-import {ArgumentMetadata, FieldTypeMetadata, GQ_OBJECT_METADATA_KEY, TypeMetadata} from "./decorator";
+import {
+    ArgumentMetadata, ContextMetadata, FieldTypeMetadata, GQ_OBJECT_METADATA_KEY, RootMetadata,
+    TypeMetadata,
+} from "./decorator";
 import {objectTypeFactory} from "./object_type_factory";
 import {SchemaFactoryError, SchemaFactoryErrorType} from "./schema_factory";
 
@@ -40,17 +43,29 @@ function convertType(typeFn: any, metadata: TypeMetadata, isInput: boolean) {
     return returnType;
 }
 
-export function resolverFactory(target: any, name: string, argumentMetadataList: ArgumentMetadata[]): ResolverHolder {
+export function resolverFactory(target: any, name: string, argumentMetadataList: ArgumentMetadata[], rootMetadata?: RootMetadata, contextMetadata?: ContextMetadata): ResolverHolder {
     const params = Reflect.getMetadata("design:paramtypes", target.prototype, name) as Array<() => void>;
     const argumentConfigMap: { [name: string]: any; } = {};
     const indexMap: { [name: string]: number; } = {};
     params.forEach((paramFn, index) => {
-        const metadata = argumentMetadataList[index];
-        argumentConfigMap[metadata.name] = {
-            name: metadata.name,
-            type: convertType(paramFn, metadata, true),
-        };
-        indexMap[metadata.name] = index;
+
+        if (argumentMetadataList == null || argumentMetadataList[index] == null) {
+            if (contextMetadata) {
+                indexMap["context"] = contextMetadata.index;
+            }
+            if (rootMetadata) {
+                indexMap["root"] = rootMetadata.index;
+            }
+        } else {
+            const metadata = argumentMetadataList[index];
+            if (metadata) {
+                argumentConfigMap[metadata.name] = {
+                    name: metadata.name,
+                    type: convertType(paramFn, metadata, true),
+                };
+                indexMap[metadata.name] = index;
+            }
+        }
     });
     const originalFn = target.prototype[name] as any;
     const fn = (source: any, args: { [name: string]: any; }, context: any, info: any) => {
@@ -62,6 +77,21 @@ export function resolverFactory(target: any, name: string, argumentMetadataList:
                 rest[index] = args[key];
             }
         });
+
+        if (contextMetadata) {
+            const index = indexMap["context"];
+            if (index >= 0) {
+                rest[index] = context;
+            }
+        }
+
+        if (rootMetadata) {
+            const index = indexMap["root"];
+            if (index >= 0) {
+                rest[index] = source;
+            }
+        }
+
         return originalFn.apply(source, rest);
     };
     return {
@@ -86,7 +116,7 @@ export function fieldTypeFactory(target: any, metadata: FieldTypeMetadata, isInp
         if (!metadata.explicitType) {
             typeFn = Reflect.getMetadata("design:returntype", target.prototype, metadata.name) as any;
         }
-        const resolverHolder = resolverFactory(target, metadata.name, metadata.args);
+        const resolverHolder = resolverFactory(target, metadata.name, metadata.args, metadata.root, metadata.context);
         resolveFn = resolverHolder.fn;
         args = resolverHolder.argumentConfigMap;
     }
