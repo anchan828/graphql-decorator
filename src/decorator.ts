@@ -26,6 +26,7 @@ export interface FieldTypeMetadata extends ArgumentMetadata {
     args?: ArgumentMetadata[];
     root?: RootMetadata;
     context?: ContextMetadata;
+    resolve?: (obj: any) => any;
 }
 
 export interface ContextMetadata extends ArgumentMetadata {
@@ -53,6 +54,7 @@ function createOrSetObjectTypeMetadata(target: any, metadata: ObjectTypeMetadata
 
 export interface FieldOption {
     type?: any;
+    resolve?: (obj: any) => any;
 }
 
 export interface ArgumentOption {
@@ -140,10 +142,17 @@ export function InputObjectType(option?: MergeOptionMetadata) {
 
 export function Field(option?: FieldOption) {
     return (target: any, propertyKey: any) => {
-        createOrSetFieldTypeMetadata(target, {
+
+        const metadata = {
             name: propertyKey,
             explicitType: option && option.type,
-        });
+        } as FieldTypeMetadata;
+
+        if (option && option.resolve) {
+            metadata.resolve = option.resolve;
+        }
+
+        createOrSetFieldTypeMetadata(target, metadata);
     };
 }
 

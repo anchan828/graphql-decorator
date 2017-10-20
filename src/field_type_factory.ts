@@ -122,9 +122,15 @@ export function fieldTypeFactory(target: any, metadata: FieldTypeMetadata, isInp
     }
 
     const fieldType = convertType(typeFn, metadata, isInput);
+
     if (!fieldType) {
         return null;
     }
+
+    if (metadata.resolve) {
+        resolveFn = metadata.resolve;
+    }
+
     return {
         type: fieldType,
         description: description && description,
