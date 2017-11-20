@@ -1,3 +1,4 @@
+import {GraphQLResolveInfo} from "graphql";
 import "reflect-metadata";
 
 export const GQ_QUERY_KEY = Symbol("gq_query");
@@ -28,7 +29,7 @@ export interface FieldTypeMetadata extends ArgumentMetadata {
     args?: ArgumentMetadata[];
     root?: RootMetadata;
     context?: ContextMetadata;
-    resolve?: (obj: any) => any;
+    resolve?: (parent: any, args?: any, context?: any, resolveInfo?: GraphQLResolveInfo) => any;
 }
 
 export interface ContextMetadata extends ArgumentMetadata {
@@ -68,7 +69,7 @@ function createOrSetObjectTypeMetadata(target: any, metadata: ObjectTypeMetadata
 
 export interface FieldOption {
     type?: any;
-    resolve?: (obj: any) => any;
+    resolve?: (parent: any, args?: any, context?: any, resolveInfo?: GraphQLResolveInfo) => any;
 }
 
 export interface ArgumentOption {
