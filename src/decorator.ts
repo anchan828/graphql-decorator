@@ -19,6 +19,7 @@ export interface TypeMetadata {
     description?: string;
     isNonNull?: boolean;
     isList?: boolean;
+    multidimensionalList?: number;
     explicitType?: any;
 }
 
@@ -209,16 +210,18 @@ export function NonNull() {
     };
 }
 
-export function List() {
+export function List(multidimensionalList: number = 1) {
     return (target: any, propertyKey: any, index?: any) => {
         if (index >= 0 && typeof index === "number") {
             setArgumentMetadata(target, propertyKey, index, {
                 isList: true,
+                multidimensionalList,
             });
         } else {
             createOrSetFieldTypeMetadata(target, {
                 name: propertyKey,
                 isList: true,
+                multidimensionalList,
             });
         }
     };

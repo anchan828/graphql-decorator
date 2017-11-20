@@ -30,16 +30,20 @@ function convertType(typeFn: any, metadata: TypeMetadata, isInput: boolean) {
         if (returnType && returnType.prototype && Reflect.hasMetadata(GQ_OBJECT_METADATA_KEY, returnType.prototype)) {
             // recursively call objectFactory
             returnType = objectTypeFactory(returnType, isInput);
-        }else if (returnType && returnType.prototype && Reflect.hasMetadata(GQ_ENUM_KEY, returnType.prototype)) {
+        } else if (returnType && returnType.prototype && Reflect.hasMetadata(GQ_ENUM_KEY, returnType.prototype)) {
             returnType = enumTypeFactory(returnType);
         }
     }
     if (!returnType) {
         return null;
     }
+
     if (metadata.isList) {
-        returnType = new GraphQLList(returnType);
+        for (let i = 0; i < (metadata.multidimensionalList || 1); i++) {
+            returnType = new GraphQLList(returnType);
+        }
     }
+
     if (metadata.isNonNull) {
         returnType = new GraphQLNonNull(returnType);
     }
