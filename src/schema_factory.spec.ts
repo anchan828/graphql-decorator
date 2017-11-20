@@ -4,7 +4,7 @@ import * as D from "./decorator";
 import {clearObjectTypeRepository} from "./object_type_factory";
 import {schemaFactory, SchemaFactoryError, SchemaFactoryErrorType} from "./schema_factory";
 
-import {execute, parse, printSchema, validate} from "graphql";
+import {execute, GraphQLInt, parse, printSchema, validate} from "graphql";
 
 describe("schemaFactory", () => {
     beforeEach(() => {
@@ -221,5 +221,26 @@ describe("schemaFactory", () => {
         assert.deepEqual(validate(schema, ast), []);
         const actual = await execute(schema, ast) as { data: { add: Return } };
         assert(actual.data.add.id === "added Test");
+    });
+
+    it("returns a GraphQL schema object which is executable", async () => {
+        @D.ObjectType()
+        class Query {
+            @D.Field({type: GraphQLInt})
+            public async twice(@D.Arg({name: "input"}) input: number): Promise<number> {
+                return input * 2;
+            }
+        }
+
+        @D.Schema()
+        class Schema {
+            @D.Query() public query: Query;
+        }
+
+        const schema = schemaFactory(Schema);
+        const ast = parse(`query { twice(input: 1) }`);
+        assert.deepEqual(validate(schema, ast), []);
+        const actual = await execute(schema, ast) as { data: { twice: number } };
+        assert(actual.data.twice === 2);
     });
 });

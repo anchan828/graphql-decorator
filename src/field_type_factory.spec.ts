@@ -180,6 +180,18 @@ describe("fieldTypeFactory", () => {
             const actual = fieldTypeFactory(Obj, {name: "title", explicitType: graphql.GraphQLString});
             assert(!!actual.resolve);
         });
+
+        it("returns Number with a class which has a function field", () => {
+            class Obj {
+                @D.Field()
+                public async title(): Promise<string> {
+                    return "hello";
+                }
+            }
+
+            const actual = fieldTypeFactory(Obj, {name: "title", explicitType: graphql.GraphQLInt});
+            assert(actual.type instanceof graphql.GraphQLScalarType);
+        });
     });
 
     describe("with metadata options", () => {
