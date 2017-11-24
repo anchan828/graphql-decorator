@@ -134,10 +134,6 @@ export function fieldTypeFactory(target: any, metadata: FieldTypeMetadata, isInp
         return null;
     }
 
-    if (metadata.resolve) {
-        resolveFn = metadata.resolve;
-    }
-
     return {
         type: fieldType,
         description: description && description,

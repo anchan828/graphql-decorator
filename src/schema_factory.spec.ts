@@ -184,46 +184,6 @@ describe("schemaFactory", () => {
     });
 
     it("returns a GraphQL schema object which is executable", async () => {
-
-        @D.ObjectType()
-        class Return {
-            @D.Field({resolve: (obj: Return) => `added ${obj.id}`}) public id: string;
-        }
-
-        @D.InputObjectType()
-        class Input {
-            @D.Field() public a: string;
-        }
-
-        @D.ObjectType()
-        class Query {
-            @D.Field()
-            public add(@D.Arg({name: "input"}) input: Input): Return {
-                const obj = new Return();
-                obj.id = input.a;
-                return obj;
-            }
-        }
-
-        @D.Schema()
-        class Schema {
-            @D.Query() public query: Query;
-        }
-
-        const schema = schemaFactory(Schema);
-        const ast = parse(
-            `query {
-                add(input: {a: "Test"}){
-                    id
-                }
-            }`,
-        );
-        assert.deepEqual(validate(schema, ast), []);
-        const actual = await execute(schema, ast) as { data: { add: Return } };
-        assert(actual.data.add.id === "added Test");
-    });
-
-    it("returns a GraphQL schema object which is executable", async () => {
         @D.ObjectType()
         class Query {
             @D.Field({type: GraphQLInt})
