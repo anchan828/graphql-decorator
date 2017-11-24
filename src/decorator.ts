@@ -134,6 +134,18 @@ function setRootMetadata(target: any, propertyKey: any, index: number, metadata:
     }
 }
 
+function setContextMetadata(target: any, propertyKey: any, index: number, metadata: ContextMetadata) {
+    const fieldMetadata = getFieldMetadata(target, propertyKey);
+    if (fieldMetadata && fieldMetadata.context) {
+        Object.assign(fieldMetadata.context, metadata);
+    } else {
+        createOrSetFieldTypeMetadata(target, {
+            name: propertyKey,
+            context: {index},
+        });
+    }
+}
+
 function createOrSetEnumMetadata(target: any, metadata: EnumTypeMetadata) {
     if (!Reflect.hasMetadata(GQ_ENUM_KEY, target.prototype)) {
         Reflect.defineMetadata(GQ_ENUM_KEY, metadata, target.prototype);
@@ -250,6 +262,12 @@ export function Arg(option: ArgumentOption) {
 export function Root() {
     return (target: any, propertyKey: any, index: number) => {
         setRootMetadata(target, propertyKey, index, {});
+    };
+}
+
+export function Ctx() {
+    return (target: any, propertyKey: any, index: number) => {
+        setContextMetadata(target, propertyKey, index, {});
     };
 }
 
