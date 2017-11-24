@@ -30,7 +30,6 @@ export interface FieldTypeMetadata extends ArgumentMetadata {
     args?: ArgumentMetadata[];
     root?: RootMetadata;
     context?: ContextMetadata;
-    resolve?: (parent: any, args?: any, context?: any, resolveInfo?: GraphQLResolveInfo) => any;
 }
 
 export interface ContextMetadata extends ArgumentMetadata {
@@ -70,7 +69,6 @@ function createOrSetObjectTypeMetadata(target: any, metadata: ObjectTypeMetadata
 
 export interface FieldOption {
     type?: any;
-    resolve?: (parent: any, args?: any, context?: any, resolveInfo?: GraphQLResolveInfo) => any;
 }
 
 export interface ArgumentOption {
@@ -186,10 +184,6 @@ export function Field(option?: FieldOption) {
             name: propertyKey,
             explicitType: option && option.type,
         } as FieldTypeMetadata;
-
-        if (option && option.resolve) {
-            metadata.resolve = option.resolve;
-        }
 
         createOrSetFieldTypeMetadata(target, metadata);
     };
