@@ -1,6 +1,6 @@
 import {GraphQLBoolean, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLString} from "graphql";
 import {
-    ArgumentMetadata, ContextMetadata, FieldTypeMetadata, GQ_ENUM_KEY, GQ_OBJECT_METADATA_KEY, RootMetadata,
+    ArgumentMetadata, ContextMetadata, FieldTypeMetadata, GQ_ENUM_KEY, GQ_OBJECT_METADATA_KEY, ParentMetadata,
     TypeMetadata,
 } from "./decorator";
 import {enumTypeFactory} from "./enum_type_factory";
@@ -50,7 +50,7 @@ function convertType(typeFn: any, metadata: TypeMetadata, isInput: boolean) {
     return returnType;
 }
 
-export function resolverFactory(target: any, name: string, argumentMetadataList: ArgumentMetadata[], rootMetadata?: RootMetadata, contextMetadata?: ContextMetadata): ResolverHolder {
+export function resolverFactory(target: any, name: string, argumentMetadataList: ArgumentMetadata[], parentMetadata?: ParentMetadata, contextMetadata?: ContextMetadata): ResolverHolder {
     const params = Reflect.getMetadata("design:paramtypes", target.prototype, name) as Array<() => void>;
     const argumentConfigMap: { [name: string]: any; } = {};
     const indexMap: { [name: string]: number; } = {};
@@ -60,8 +60,8 @@ export function resolverFactory(target: any, name: string, argumentMetadataList:
             if (contextMetadata) {
                 indexMap["context"] = contextMetadata.index;
             }
-            if (rootMetadata) {
-                indexMap["root"] = rootMetadata.index;
+            if (parentMetadata) {
+                indexMap["parent"] = parentMetadata.index;
             }
         } else {
             const metadata = argumentMetadataList[index];
@@ -92,8 +92,8 @@ export function resolverFactory(target: any, name: string, argumentMetadataList:
             }
         }
 
-        if (rootMetadata) {
-            const index = indexMap["root"];
+        if (parentMetadata) {
+            const index = indexMap["parent"];
             if (index >= 0) {
                 rest[index] = source;
             }
@@ -123,7 +123,7 @@ export function fieldTypeFactory(target: any, metadata: FieldTypeMetadata, isInp
         if (!metadata.explicitType) {
             typeFn = Reflect.getMetadata("design:returntype", target.prototype, metadata.name) as any;
         }
-        const resolverHolder = resolverFactory(target, metadata.name, metadata.args, metadata.root, metadata.context);
+        const resolverHolder = resolverFactory(target, metadata.name, metadata.args, metadata.parent, metadata.context);
         resolveFn = resolverHolder.fn;
         args = resolverHolder.argumentConfigMap;
     }

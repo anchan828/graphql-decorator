@@ -28,7 +28,7 @@ export interface ArgumentMetadata extends TypeMetadata {
 
 export interface FieldTypeMetadata extends ArgumentMetadata {
     args?: ArgumentMetadata[];
-    root?: RootMetadata;
+    parent?: ParentMetadata;
     context?: ContextMetadata;
 }
 
@@ -36,7 +36,7 @@ export interface ContextMetadata extends ArgumentMetadata {
     index?: number;
 }
 
-export interface RootMetadata extends ContextMetadata {
+export interface ParentMetadata extends ContextMetadata {
 }
 
 export interface EnumTypeMetadata {
@@ -122,14 +122,14 @@ function setArgumentMetadata(target: any, propertyKey: any, index: number, metad
     }
 }
 
-function setRootMetadata(target: any, propertyKey: any, index: number, metadata: ContextMetadata) {
+function setParentMetadata(target: any, propertyKey: any, index: number, metadata: ContextMetadata) {
     const fieldMetadata = getFieldMetadata(target, propertyKey);
-    if (fieldMetadata && fieldMetadata.root) {
-        Object.assign(fieldMetadata.root, metadata);
+    if (fieldMetadata && fieldMetadata.parent) {
+        Object.assign(fieldMetadata.parent, metadata);
     } else {
         createOrSetFieldTypeMetadata(target, {
             name: propertyKey,
-            root: {index},
+            parent: {index},
         });
     }
 }
@@ -259,9 +259,9 @@ export function Arg(option: ArgumentOption) {
     };
 }
 
-export function Root() {
+export function Parent() {
     return (target: any, propertyKey: any, index: number) => {
-        setRootMetadata(target, propertyKey, index, {});
+        setParentMetadata(target, propertyKey, index, {});
     };
 }
 
