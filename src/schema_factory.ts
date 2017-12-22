@@ -1,5 +1,5 @@
 import {GraphQLSchema} from "graphql";
-import {GQ_MUTATION_KEY, GQ_QUERY_KEY, GQ_SCHEMA_KEY} from "./decorator";
+import {GQ_MUTATION_KEY, GQ_QUERY_KEY, GQ_SCHEMA_KEY, GQ_SUBSCRIPTION_KEY} from "./decorator";
 import {objectTypeFactory} from "./object_type_factory";
 
 export enum SchemaFactoryErrorType {
@@ -29,16 +29,25 @@ export function schemaFactory(target: any) {
     const queryKey = Reflect.getMetadata(GQ_QUERY_KEY, target.prototype) as string;
     const queryTypeFn = Reflect.getMetadata("design:type", target.prototype, queryKey);
 
-    if (!Reflect.hasMetadata(GQ_MUTATION_KEY, target.prototype)) {
-        return new GraphQLSchema({
-            query: objectTypeFactory(queryTypeFn),
-        });
-    } else {
+    const schema: {
+        query: any,
+        mutation?: any,
+        subscription?: any,
+    } = {
+        query: objectTypeFactory(queryTypeFn),
+    };
+
+    if (Reflect.hasMetadata(GQ_MUTATION_KEY, target.prototype)) {
         const mutationKey = Reflect.getMetadata(GQ_MUTATION_KEY, target.prototype) as string;
         const mutationTypeFn = Reflect.getMetadata("design:type", target.prototype, mutationKey);
-        return new GraphQLSchema({
-            query: objectTypeFactory(queryTypeFn),
-            mutation: objectTypeFactory(mutationTypeFn),
-        });
+        schema.mutation = objectTypeFactory(mutationTypeFn);
     }
+
+    if (Reflect.hasMetadata(GQ_SUBSCRIPTION_KEY, target.prototype)) {
+        const subscriptionKey = Reflect.getMetadata(GQ_SUBSCRIPTION_KEY, target.prototype) as string;
+        const subscriptionTypeFn = Reflect.getMetadata("design:type", target.prototype, subscriptionKey);
+        schema.subscription = objectTypeFactory(subscriptionTypeFn);
+    }
+
+    return new GraphQLSchema(schema);
 }

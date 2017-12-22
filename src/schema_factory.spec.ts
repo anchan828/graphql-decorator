@@ -224,4 +224,38 @@ describe("schemaFactory", () => {
         const actual = await execute(schema, ast) as { data: { twice: number[][] } };
         assert.deepEqual(actual.data.twice, [[1, 2], [3, 4]]);
     });
+
+    it("returns a GraphQL schema object which is executable", async () => {
+        @D.ObjectType()
+        class Query {
+            @D.Field({type: GraphQLInt}) @D.List(2)
+            public async twice(@D.Arg({name: "input"}) input: number): Promise<number[][]> {
+                return [[input * 1, input * 2], [input * 3, input * 4]];
+            }
+        }
+
+        @D.ObjectType()
+        class Subscription {
+            @D.Field({type: GraphQLInt}) @D.List(2)
+            public async subscrip(@D.Arg({name: "input"}) input: number): Promise<number[][]> {
+                return [[input * 1, input * 2], [input * 3, input * 4]];
+            }
+        }
+
+        @D.Schema()
+        class Schema {
+            @D.Query() public query: Query;
+            @D.Subscription() public subscription: Subscription;
+        }
+
+        const schema = schemaFactory(Schema);
+        assert.equal(printSchema(schema), `type Query {
+  twice(input: Int): [[Int]]
+}
+
+type Subscription {
+  subscrip(input: Int): [[Int]]
+}
+`);
+    });
 });

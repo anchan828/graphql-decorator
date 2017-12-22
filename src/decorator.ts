@@ -1,8 +1,8 @@
-import {GraphQLResolveInfo} from "graphql";
 import "reflect-metadata";
 
 export const GQ_QUERY_KEY = Symbol("gq_query");
 export const GQ_MUTATION_KEY = Symbol("gq_mutation");
+export const GQ_SUBSCRIPTION_KEY = Symbol("gq_subscription");
 export const GQ_FIELDS_KEY = Symbol("gq_fields");
 export const GQ_OBJECT_METADATA_KEY = Symbol("gq_object_type");
 export const GQ_SCHEMA_KEY = Symbol("gq_schema");
@@ -299,6 +299,12 @@ export function Query() {
 export function Mutation() {
     return (target: any, propertyKey: any) => {
         Reflect.defineMetadata(GQ_MUTATION_KEY, propertyKey, target);
+    };
+}
+
+export function Subscription() {
+    return (target: any, propertyKey: any) => {
+        Reflect.defineMetadata(GQ_SUBSCRIPTION_KEY, propertyKey, target);
     };
 }
 
