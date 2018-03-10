@@ -106,9 +106,10 @@ export function resolverFactory(target: any, name: string, argumentMetadataList:
     };
 }
 
-export function fieldTypeFactory(target: any, metadata: FieldTypeMetadata, isInput?: boolean) {
+export function fieldTypeFactory(target: any, metadata: FieldTypeMetadata, isInput?: boolean, isSubscription?: boolean) {
     let typeFn = Reflect.getMetadata("design:type", target.prototype, metadata.name) as any;
     let resolveFn: any;
+    let subscribeFn: any;
     let args: { [name: string]: any; };
 
     const description = metadata.description;
@@ -128,16 +129,22 @@ export function fieldTypeFactory(target: any, metadata: FieldTypeMetadata, isInp
         args = resolverHolder.argumentConfigMap;
     }
 
+    if (isSubscription) {
+        const resolverHolder = resolverFactory(target, metadata.name, metadata.args, metadata.parent, metadata.context);
+        subscribeFn = resolverHolder.fn;
+        args = resolverHolder.argumentConfigMap;
+    }
+
     const fieldType = convertType(typeFn, metadata, isInput);
 
     if (!fieldType) {
         return null;
     }
-
     return {
         type: fieldType,
         description: description && description,
         args: args && args,
         resolve: resolveFn,
+        subscribe: subscribeFn,
     };
 }

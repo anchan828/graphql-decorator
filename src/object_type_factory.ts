@@ -9,7 +9,7 @@ export function clearObjectTypeRepository() {
     objectTypeRepository = {};
 }
 
-export function objectTypeFactory(target: any, isInput?: boolean) {
+export function objectTypeFactory(target: any, isInput?: boolean, isSubscription?: boolean) {
     const objectTypeMetadata = Reflect.getMetadata(GQ_OBJECT_METADATA_KEY, target.prototype) as ObjectTypeMetadata;
 
     const typeFromRepository = objectTypeRepository[objectTypeMetadata.name];
@@ -20,14 +20,12 @@ export function objectTypeFactory(target: any, isInput?: boolean) {
         // TODO write test
         throw new SchemaFactoryError("", SchemaFactoryErrorType.INVALID_OBJECT_TYPE_METADATA);
     }
-    if (!Reflect.hasMetadata(GQ_FIELDS_KEY, target.prototype)) {
-        throw new SchemaFactoryError("Class annotated by @ObjectType() should has one or more fields annotated by @Filed()", SchemaFactoryErrorType.NO_FIELD);
-    }
-    let fieldMetadataList = Reflect.getMetadata(GQ_FIELDS_KEY, target.prototype) as FieldTypeMetadata[];
+
+    let fieldMetadataList = Reflect.getMetadata(GQ_FIELDS_KEY, target.prototype) as FieldTypeMetadata[] || [];
     const fields: { [key: string]: any } = {};
 
     fieldMetadataList.filter((def) => def && def.name).forEach((def) => {
-        fields[def.name] = fieldTypeFactory(target, def);
+        fields[def.name] = fieldTypeFactory(target, def, isInput, isSubscription);
     });
 
     if (objectTypeMetadata.merge) {
@@ -35,10 +33,14 @@ export function objectTypeFactory(target: any, isInput?: boolean) {
             fieldMetadataList = Reflect.getMetadata(GQ_FIELDS_KEY, mergeObjectType.prototype) as FieldTypeMetadata[];
             if (fieldMetadataList && Array.isArray(fieldMetadataList)) {
                 fieldMetadataList.filter((def) => def && def.name).forEach((def) => {
-                    fields[def.name] = fieldTypeFactory(mergeObjectType, def);
+                    fields[def.name] = fieldTypeFactory(mergeObjectType, def, isInput, isSubscription);
                 });
             }
         }
+    }
+
+    if (Object.keys(fields).length === 0) {
+        throw new SchemaFactoryError("Class annotated by @ObjectType() should has one or more fields annotated by @Filed()", SchemaFactoryErrorType.NO_FIELD);
     }
 
     if (!!isInput) {

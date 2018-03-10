@@ -46,7 +46,7 @@ export function schemaFactory(target: any) {
     if (Reflect.hasMetadata(GQ_SUBSCRIPTION_KEY, target.prototype)) {
         const subscriptionKey = Reflect.getMetadata(GQ_SUBSCRIPTION_KEY, target.prototype) as string;
         const subscriptionTypeFn = Reflect.getMetadata("design:type", target.prototype, subscriptionKey);
-        schema.subscription = objectTypeFactory(subscriptionTypeFn);
+        schema.subscription = objectTypeFactory(subscriptionTypeFn, false, true);
     }
 
     return new GraphQLSchema(schema);
