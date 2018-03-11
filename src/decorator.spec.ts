@@ -2,8 +2,9 @@ import * as assert from "assert";
 import "reflect-metadata";
 import * as D from "./decorator";
 import {
+    DescriptionMetadata,
     FieldTypeMetadata,
-    getFieldMetadata,
+    getFieldMetadata, GQ_DESCRIPTION_KEY,
     GQ_FIELDS_KEY,
     GQ_OBJECT_METADATA_KEY,
     ObjectTypeMetadata, Parent,
@@ -70,14 +71,15 @@ describe("Decorators", () => {
             assert(actual.explicitType === graphql.GraphQLID);
         });
 
-        it("sets description to FieldTypeMetadata with @Description", () => {
+        it("sets description to DescriptionMetadata with @Description", () => {
             class Obj {
                 @D.Description("some field") @D.Field() public someField: any;
             }
 
-            const actual = getFieldMetadata(Obj.prototype, "someField");
-            assert(actual.name === "someField");
-            assert(actual.description === "some field");
+            const actual = Reflect.getMetadata(GQ_DESCRIPTION_KEY, Obj.prototype) as DescriptionMetadata[];
+            assert(actual.length === 1);
+            assert(actual[0].name === "someField");
+            assert(actual[0].description === "some field");
         });
 
         it("sets isNonull to FieldTypeMetadata with @NonNull", () => {

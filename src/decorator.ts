@@ -2,6 +2,7 @@ import "reflect-metadata";
 
 export const GQ_QUERY_KEY = Symbol("gq_query");
 export const GQ_MUTATION_KEY = Symbol("gq_mutation");
+export const GQ_DESCRIPTION_KEY = Symbol("gq_description");
 export const GQ_SUBSCRIPTION_KEY = Symbol("gq_subscription");
 export const GQ_FIELDS_KEY = Symbol("gq_fields");
 export const GQ_OBJECT_METADATA_KEY = Symbol("gq_object_type");
@@ -37,6 +38,11 @@ export interface ContextMetadata extends ArgumentMetadata {
 }
 
 export interface ParentMetadata extends ContextMetadata {
+}
+
+export interface DescriptionMetadata {
+    name?: string;
+    description?: string;
 }
 
 export interface EnumTypeMetadata {
@@ -146,6 +152,16 @@ function setContextMetadata(target: any, propertyKey: any, index: number, metada
     }
 }
 
+function createOrSetDescriptionMetadata(target: any, metadata: DescriptionMetadata) {
+
+    if (!Reflect.hasMetadata(GQ_DESCRIPTION_KEY, target)) {
+        Reflect.defineMetadata(GQ_DESCRIPTION_KEY, [metadata], target);
+    } else {
+        const originalMetadata = (Reflect.getMetadata(GQ_DESCRIPTION_KEY, target) as DescriptionMetadata[]).find((def) => def.name === metadata.name);
+        Object.assign(originalMetadata, metadata);
+    }
+}
+
 function createOrSetEnumMetadata(target: any, metadata: EnumTypeMetadata) {
     if (!Reflect.hasMetadata(GQ_ENUM_KEY, target.prototype)) {
         Reflect.defineMetadata(GQ_ENUM_KEY, metadata, target.prototype);
@@ -166,6 +182,8 @@ function createOrSetEnumValueTypeMetadata(target: any, metadata: EnumValueMetada
     const def = valueDefs.find((d) => d.name === metadata.name);
     if (!def) {
         valueDefs.push(metadata);
+    } else {
+        Object.assign(def, metadata);
     }
 }
 
@@ -278,7 +296,8 @@ export function Description(body: string) {
                 description: body,
             });
         } else if (propertyKey) {
-            createOrSetFieldTypeMetadata(target, {
+
+            createOrSetDescriptionMetadata(target, {
                 name: propertyKey,
                 description: body,
             });

@@ -1,6 +1,8 @@
 import {GraphQLBoolean, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLString} from "graphql";
 import {
-    ArgumentMetadata, ContextMetadata, FieldTypeMetadata, GQ_ENUM_KEY, GQ_OBJECT_METADATA_KEY, ParentMetadata,
+    ArgumentMetadata, ContextMetadata, DescriptionMetadata, FieldTypeMetadata, GQ_DESCRIPTION_KEY, GQ_ENUM_KEY,
+    GQ_OBJECT_METADATA_KEY,
+    ParentMetadata,
     TypeMetadata,
 } from "./decorator";
 import {enumTypeFactory} from "./enum_type_factory";
@@ -112,7 +114,16 @@ export function fieldTypeFactory(target: any, metadata: FieldTypeMetadata, isInp
     let subscribeFn: any;
     let args: { [name: string]: any; };
 
-    const description = metadata.description;
+    let description = metadata.description;
+
+    if (Reflect.hasMetadata(GQ_DESCRIPTION_KEY, target.prototype)) {
+        const descriptionMetadata = (Reflect.getMetadata(GQ_DESCRIPTION_KEY, target.prototype) as DescriptionMetadata[]).find((def) => def.name === metadata.name);
+
+        if (descriptionMetadata) {
+            description = descriptionMetadata.description;
+        }
+    }
+
     const isFunctionType = Reflect.getMetadata("design:type", target.prototype, metadata.name) === Function;
 
     if (isInput && isFunctionType) {
