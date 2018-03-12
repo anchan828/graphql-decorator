@@ -1,5 +1,6 @@
 import {GraphQLSchema} from "graphql";
 import {GQ_MUTATION_KEY, GQ_QUERY_KEY, GQ_SCHEMA_KEY, GQ_SUBSCRIPTION_KEY} from "./decorator";
+import {clearEnumTypeCache} from "./enum_type_factory";
 import {objectTypeFactory} from "./object_type_factory";
 
 export enum SchemaFactoryErrorType {
@@ -48,6 +49,7 @@ export function schemaFactory(target: any) {
         const subscriptionTypeFn = Reflect.getMetadata("design:type", target.prototype, subscriptionKey);
         schema.subscription = objectTypeFactory(subscriptionTypeFn, false, true);
     }
-
-    return new GraphQLSchema(schema);
+    const graphqlSchema = new GraphQLSchema(schema);
+    clearEnumTypeCache();
+    return graphqlSchema;
 }

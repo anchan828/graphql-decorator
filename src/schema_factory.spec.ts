@@ -1,10 +1,12 @@
 import * as assert from "assert";
 import "reflect-metadata";
 import * as D from "./decorator";
-import {clearObjectTypeRepository} from "./object_type_factory";
+import {clearObjectTypeRepository, objectTypeFactory} from "./object_type_factory";
 import {schemaFactory, SchemaFactoryError, SchemaFactoryErrorType} from "./schema_factory";
 
-import {execute, GraphQLInt, parse, printSchema, validate} from "graphql";
+import {execute, GraphQLInt, GraphQLScalarType, parse, printSchema, validate} from "graphql";
+import {EnumValue} from "./decorator";
+import {fieldTypeFactory} from "./field_type_factory";
 
 describe("schemaFactory", () => {
     beforeEach(() => {
@@ -257,5 +259,85 @@ type Subscription {
   subscrip(input: Int): [[Int]]
 }
 `);
+    });
+
+    it("returns a GraphQL schema object which is executable", async () => {
+
+        @D.Enum()
+        class Obj {
+            @EnumValue(1)
+            public test: number;
+        }
+
+        @D.ObjectType()
+        class Query {
+            @D.Field({type: GraphQLInt}) @D.List(2)
+            public async twice(@D.Arg({name: "input", type: Obj}) obj: number): Promise<number> {
+                return obj;
+            }
+
+            @D.Field({type: GraphQLInt}) @D.List(2)
+            public async twice2(@D.Arg({name: "input", type: Obj}) obj: number): Promise<number> {
+                return obj;
+            }
+        }
+
+        @D.Schema()
+        class Schema {
+            @D.Query() public query: Query;
+        }
+
+        const schema = schemaFactory(Schema);
+        assert.equal(printSchema(schema), `enum Obj {
+  test
+}
+
+type Query {
+  twice(input: Obj): [[Int]]
+  twice2(input: Obj): [[Int]]
+}
+`);
+    });
+
+    it("merge @ObjectType", () => {
+
+        @D.ObjectType()
+        class Obj0 {
+            @D.Field() public title1: string;
+        }
+
+        @D.ObjectType({
+            merge: [Obj0],
+        })
+        class Obj1 {
+            @D.Field() public title2: string;
+        }
+
+        @D.ObjectType({
+            merge: [Obj1],
+        })
+        class Obj2 {
+            @D.Field() public title3: string;
+        }
+
+        @D.ObjectType({
+            merge: [Obj2],
+        })
+        class Query {
+        }
+
+        @D.Schema()
+        class Schema {
+            @D.Query() public query: Query;
+        }
+
+        const schema = schemaFactory(Schema);
+        assert.equal(printSchema(schema), `type Query {
+  title1: String
+  title2: String
+  title3: String
+}
+`);
+
     });
 });

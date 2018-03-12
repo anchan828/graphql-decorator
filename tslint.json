@@ -12,7 +12,7 @@
       "check-parameters",
       true
     ],
-    "no-console": true,
+    "no-console": false,
     "interface-name": false,
     "no-empty-interface": false
   }

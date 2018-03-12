@@ -157,8 +157,10 @@ function createOrSetDescriptionMetadata(target: any, metadata: DescriptionMetada
     if (!Reflect.hasMetadata(GQ_DESCRIPTION_KEY, target)) {
         Reflect.defineMetadata(GQ_DESCRIPTION_KEY, [metadata], target);
     } else {
-        const originalMetadata = (Reflect.getMetadata(GQ_DESCRIPTION_KEY, target) as DescriptionMetadata[]).find((def) => def.name === metadata.name);
-        Object.assign(originalMetadata, metadata);
+        const enumValues = Reflect.getMetadata(GQ_DESCRIPTION_KEY, target) as DescriptionMetadata[];
+        if (Array.isArray(enumValues) && metadata && enumValues.every((enumValue) => enumValue.name !== metadata.name)) {
+            enumValues.push(metadata);
+        }
     }
 }
 
@@ -296,7 +298,6 @@ export function Description(body: string) {
                 description: body,
             });
         } else if (propertyKey) {
-
             createOrSetDescriptionMetadata(target, {
                 name: propertyKey,
                 description: body,

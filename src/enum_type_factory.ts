@@ -1,9 +1,19 @@
 import {GraphQLEnumType} from "graphql";
 import {
-    DescriptionMetadata, EnumTypeMetadata, EnumValueMetadata, GQ_DESCRIPTION_KEY, GQ_ENUM_KEY,
+    DescriptionMetadata,
+    EnumTypeMetadata,
+    EnumValueMetadata,
+    GQ_DESCRIPTION_KEY,
+    GQ_ENUM_KEY,
     GQ_ENUM_VALUE_KEY,
 } from "./decorator";
 import {SchemaFactoryError, SchemaFactoryErrorType} from "./schema_factory";
+
+let cachedEnumTypes: { [name: string]: GraphQLEnumType } = {};
+
+export function clearEnumTypeCache() {
+    cachedEnumTypes = {};
+}
 
 export function enumTypeFactory(target: any): GraphQLEnumType {
     const enumTypeMetadata = Reflect.getMetadata(GQ_ENUM_KEY, target.prototype) as EnumTypeMetadata;
@@ -20,11 +30,15 @@ export function enumTypeFactory(target: any): GraphQLEnumType {
         values[def.name] = enumValueTypeFactory(target, def);
     });
 
-    return new GraphQLEnumType({
-        name: enumTypeMetadata.name,
-        description: enumTypeMetadata.description,
-        values,
-    });
+    if (!cachedEnumTypes[enumTypeMetadata.name]) {
+        cachedEnumTypes[enumTypeMetadata.name] = new GraphQLEnumType({
+            name: enumTypeMetadata.name,
+            description: enumTypeMetadata.description,
+            values,
+        });
+    }
+    return cachedEnumTypes[enumTypeMetadata.name];
+
 }
 
 export function enumValueTypeFactory(target: any, metadata: EnumValueMetadata): any {
