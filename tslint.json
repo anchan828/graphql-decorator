@@ -6,10 +6,9 @@
     "max-classes-per-file": false,
     "prefer-const": true,
     "object-literal-sort-keys": false,
-    "max-line-length": 200,
+    "max-line-length": { "options": { "limit": 200 } },
     "no-string-literal": false,
     "no-unused-variable": [
-      "check-parameters",
       true
     ],
     "no-console": false,
