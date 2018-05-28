@@ -28,7 +28,13 @@ function convertType(typeFn: any, metadata: TypeMetadata, isInput: boolean) {
             returnType = objectTypeFactory(typeFn, isInput);
         }
     } else {
-        returnType = metadata.explicitType;
+
+        try {
+            returnType = typeof metadata.explicitType === "function" ? metadata.explicitType() : metadata.explicitType;
+        } catch (e) {
+            returnType = metadata.explicitType;
+        }
+
         if (returnType && returnType.prototype && Reflect.hasMetadata(GQ_OBJECT_METADATA_KEY, returnType.prototype)) {
             // recursively call objectFactory
             returnType = objectTypeFactory(returnType, isInput);
@@ -36,6 +42,7 @@ function convertType(typeFn: any, metadata: TypeMetadata, isInput: boolean) {
             returnType = enumTypeFactory(returnType);
         }
     }
+
     if (!returnType) {
         return null;
     }
@@ -103,6 +110,7 @@ export function resolverFactory(target: any, name: string, argumentMetadataList:
 
         return originalFn.apply(source, rest);
     };
+
     return {
         fn, argumentConfigMap,
     };
@@ -135,6 +143,7 @@ export function fieldTypeFactory(target: any, metadata: FieldTypeMetadata, isInp
         if (!metadata.explicitType) {
             typeFn = Reflect.getMetadata("design:returntype", target.prototype, metadata.name) as any;
         }
+
         const resolverHolder = resolverFactory(target, metadata.name, metadata.args, metadata.parent, metadata.context);
         resolveFn = resolverHolder.fn;
         args = resolverHolder.argumentConfigMap;
@@ -151,11 +160,18 @@ export function fieldTypeFactory(target: any, metadata: FieldTypeMetadata, isInp
     if (!fieldType) {
         return null;
     }
-    return {
+
+    const field = {
         type: fieldType,
         description: description && description,
-        args: args && args,
+        args,
         resolve: resolveFn,
         subscribe: subscribeFn,
     };
+
+    if (!!isInput) {
+        delete field.resolve;
+    }
+
+    return field;
 }

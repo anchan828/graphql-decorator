@@ -54,18 +54,12 @@ export function objectTypeFactory(target: any, isInput?: boolean, isSubscription
         throw new SchemaFactoryError("Class annotated by @ObjectType() should has one or more fields annotated by @Filed()", SchemaFactoryErrorType.NO_FIELD);
     }
 
-    if (!!isInput) {
-        objectTypeRepository[objectTypeMetadata.name] = new GraphQLInputObjectType({
-            name: objectTypeMetadata.name,
-            fields,
-            description: objectTypeMetadata.description,
-        });
-    } else {
-        objectTypeRepository[objectTypeMetadata.name] = new GraphQLObjectType({
-            name: objectTypeMetadata.name,
-            fields,
-            description: objectTypeMetadata.description,
-        });
-    }
+    const confg = {
+        name: objectTypeMetadata.name,
+        fields,
+        description: objectTypeMetadata.description,
+    };
+
+    objectTypeRepository[objectTypeMetadata.name] = !!isInput ? new GraphQLInputObjectType(confg) : new GraphQLObjectType(confg);
     return objectTypeRepository[objectTypeMetadata.name];
 }
