@@ -54,12 +54,12 @@ export function objectTypeFactory(target: any, isInput?: boolean, isSubscription
         throw new SchemaFactoryError("Class annotated by @ObjectType() should has one or more fields annotated by @Filed()", SchemaFactoryErrorType.NO_FIELD);
     }
 
-    const confg = {
+    const config = {
         name: objectTypeMetadata.name,
         fields,
         description: objectTypeMetadata.description,
     };
 
-    objectTypeRepository[objectTypeMetadata.name] = !!isInput ? new GraphQLInputObjectType(confg) : new GraphQLObjectType(confg);
+    objectTypeRepository[objectTypeMetadata.name] = !!isInput ? new GraphQLInputObjectType(config) : new GraphQLObjectType(config);
     return objectTypeRepository[objectTypeMetadata.name];
 }
