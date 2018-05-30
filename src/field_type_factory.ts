@@ -1,4 +1,5 @@
 import {GraphQLBoolean, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLString} from "graphql";
+import {connectionArgs, connectionDefinitions} from "graphql-relay";
 import {
     ArgumentMetadata, ContextMetadata, DescriptionMetadata, FieldTypeMetadata, GQ_DESCRIPTION_KEY, GQ_ENUM_KEY,
     GQ_OBJECT_METADATA_KEY,
@@ -56,6 +57,7 @@ function convertType(typeFn: any, metadata: TypeMetadata, isInput: boolean) {
     if (metadata.isNonNull) {
         returnType = new GraphQLNonNull(returnType);
     }
+
     return returnType;
 }
 
@@ -168,6 +170,16 @@ export function fieldTypeFactory(target: any, metadata: FieldTypeMetadata, isInp
         resolve: resolveFn,
         subscribe: subscribeFn,
     };
+
+    if (metadata.isConnection) {
+        const {connectionType} = connectionDefinitions({
+            name: metadata.name.charAt(0).toUpperCase() + metadata.name.slice(1),
+            nodeType: fieldType,
+            resolveNode: resolveFn,
+        });
+        field.type = connectionType;
+        field.args = {...args, ...connectionArgs};
+    }
 
     if (!!isInput) {
         delete field.resolve;

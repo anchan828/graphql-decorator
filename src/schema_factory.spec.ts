@@ -1,12 +1,11 @@
 import * as assert from "assert";
+import {execute, GraphQLInt, parse, printSchema, validate} from "graphql";
+import {Connection, ConnectionArguments, connectionFromArray} from "graphql-relay";
 import "reflect-metadata";
 import * as D from "./decorator";
-import {clearObjectTypeRepository, objectTypeFactory} from "./object_type_factory";
-import {schemaFactory, SchemaFactoryError, SchemaFactoryErrorType} from "./schema_factory";
-
-import {execute, GraphQLInt, GraphQLScalarType, parse, printSchema, validate} from "graphql";
 import {EnumValue} from "./decorator";
-import {fieldTypeFactory} from "./field_type_factory";
+import {clearObjectTypeRepository} from "./object_type_factory";
+import {schemaFactory, SchemaFactoryError, SchemaFactoryErrorType} from "./schema_factory";
 
 describe("schemaFactory", () => {
     beforeEach(() => {
@@ -339,5 +338,36 @@ type Query {
 }
 `);
 
+    });
+
+    it("returns a GraphQL schema object which is executable", async () => {
+        @D.ObjectType()
+        class Query {
+            @D.Field({type: GraphQLInt}) @D.Connection()
+            public twice(@D.Arg({name: "input"}) input: number, args: ConnectionArguments): Connection<number> {
+                return connectionFromArray([1, 2, 3, 4, 5], args);
+            }
+
+            @D.Field({type: GraphQLInt}) @D.Connection()
+            public twice2(@D.Arg({name: "input"}) input: number, args: ConnectionArguments): Connection<number> {
+                return connectionFromArray([1, 2, 3, 4, 5], args);
+            }
+        }
+
+        @D.Schema()
+        class Schema {
+            @D.Query() public query: Query;
+        }
+
+        const schema = schemaFactory(Schema);
+        assert(printSchema(schema).includes(`"""An edge in a connection."""
+type TwiceEdge {
+  """The item at the end of the edge"""
+  node: Int
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+`));
     });
 });

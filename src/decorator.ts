@@ -31,6 +31,7 @@ export interface FieldTypeMetadata extends ArgumentMetadata {
     args?: ArgumentMetadata[];
     parent?: ParentMetadata;
     context?: ContextMetadata;
+    isConnection?: boolean;
 }
 
 export interface ContextMetadata extends ArgumentMetadata {
@@ -218,6 +219,15 @@ export function Field(option?: FieldOption) {
         } as FieldTypeMetadata;
 
         createOrSetFieldTypeMetadata(target, metadata);
+    };
+}
+
+export function Connection() {
+    return (target: any, propertyKey: any) => {
+        createOrSetFieldTypeMetadata(target, {
+            name: propertyKey,
+            isConnection: true,
+        });
     };
 }
 

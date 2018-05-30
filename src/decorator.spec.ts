@@ -167,6 +167,19 @@ describe("Decorators", () => {
         });
     });
 
+    describe("@Connection", () => {
+        it("creates @Connection", () => {
+
+            class Obj {
+                @D.Field() @D.Connection() public someField: any;
+            }
+
+            const actual = getFieldMetadata(Obj.prototype, "someField");
+            assert(actual);
+            assert(actual.isConnection);
+        });
+    });
+
     describe("@Parent", () => {
         it("creates @Parent", () => {
             class Obj {
