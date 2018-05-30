@@ -76,6 +76,7 @@ function createOrSetObjectTypeMetadata(target: any, metadata: ObjectTypeMetadata
 
 export interface FieldOption {
     type?: any;
+    isConnection?: boolean;
 }
 
 export interface ArgumentOption {
@@ -216,18 +217,10 @@ export function Field(option?: FieldOption) {
         const metadata = {
             name: propertyKey,
             explicitType: option && option.type,
+            isConnection: option && option.isConnection,
         } as FieldTypeMetadata;
 
         createOrSetFieldTypeMetadata(target, metadata);
-    };
-}
-
-export function Connection() {
-    return (target: any, propertyKey: any) => {
-        createOrSetFieldTypeMetadata(target, {
-            name: propertyKey,
-            isConnection: true,
-        });
     };
 }
 

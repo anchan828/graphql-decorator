@@ -343,12 +343,12 @@ type Query {
     it("returns a GraphQL schema object which is executable", async () => {
         @D.ObjectType()
         class Query {
-            @D.Field({type: GraphQLInt}) @D.Connection()
+            @D.Field({type: GraphQLInt, isConnection: true})
             public twice(@D.Arg({name: "input"}) input: number, args: ConnectionArguments): Connection<number> {
                 return connectionFromArray([1, 2, 3, 4, 5], args);
             }
 
-            @D.Field({type: GraphQLInt}) @D.Connection()
+            @D.Field({type: GraphQLInt, isConnection: true})
             public twice2(@D.Arg({name: "input"}) input: number, args: ConnectionArguments): Connection<number> {
                 return connectionFromArray([1, 2, 3, 4, 5], args);
             }
