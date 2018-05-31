@@ -1,9 +1,9 @@
 import * as assert from "assert";
-import {execute, GraphQLInt, parse, printSchema, validate} from "graphql";
+import {execute, graphql, GraphQLFloat, GraphQLInt, parse, printSchema, validate} from "graphql";
 import {Connection, ConnectionArguments, connectionFromArray} from "graphql-relay";
 import "reflect-metadata";
 import * as D from "./decorator";
-import {EnumValue} from "./decorator";
+import {EnumValue, List} from "./decorator";
 import {clearObjectTypeRepository} from "./object_type_factory";
 import {schemaFactory, SchemaFactoryError, SchemaFactoryErrorType} from "./schema_factory";
 
@@ -341,16 +341,21 @@ type Query {
     });
 
     it("returns a GraphQL schema object which is executable", async () => {
+
         @D.ObjectType()
         class Query {
             @D.Field({type: GraphQLInt, isConnection: true})
-            public twice(@D.Arg({name: "input"}) input: number, args: ConnectionArguments): Connection<number> {
-                return connectionFromArray([1, 2, 3, 4, 5], args);
+            public twice(@D.Arg({
+                             name: "input",
+                             type: GraphQLFloat,
+                         }) input: number,
+                         @D.Arg({name: "first"}) first: number): Connection<any> {
+                return connectionFromArray<number>([1, 2, 3, 4, 5], {first});
             }
 
-            @D.Field({type: GraphQLInt, isConnection: true})
+            @D.Field({type: GraphQLInt, isConnection: true}) @List()
             public twice2(@D.Arg({name: "input"}) input: number, args: ConnectionArguments): Connection<number> {
-                return connectionFromArray([1, 2, 3, 4, 5], args);
+                return connectionFromArray<number>([1, 2, 3, 4, 5], args || {});
             }
         }
 
@@ -369,5 +374,24 @@ type TwiceEdge {
   cursor: String!
 }
 `));
+
+        const result = await graphql(schema, `{
+            twice(input: 1, first: 2) {
+                edges {
+                    node
+                }
+                pageInfo {
+                    hasPreviousPage
+                    hasNextPage
+                }
+            }
+        }`);
+
+        assert.strictEqual(JSON.stringify(result.data), JSON.stringify({
+            twice: {
+                edges: [{node: 1}, {node: 2}],
+                pageInfo: {hasPreviousPage: false, hasNextPage: true},
+            },
+        }));
     });
 });

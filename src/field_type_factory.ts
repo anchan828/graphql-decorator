@@ -175,7 +175,6 @@ export function fieldTypeFactory(target: any, metadata: FieldTypeMetadata, isInp
         const {connectionType} = connectionDefinitions({
             name: metadata.name.charAt(0).toUpperCase() + metadata.name.slice(1),
             nodeType: fieldType,
-            resolveNode: resolveFn,
         });
         field.type = connectionType;
         field.args = {...args, ...connectionArgs};
