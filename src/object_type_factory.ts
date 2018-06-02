@@ -31,19 +31,6 @@ export function mergeObjectTypes(target: any, isInput: boolean, isSubscription: 
     }
 }
 
-export function resolveExplicitTypeNames(target: any, isInput: boolean, isSubscription: boolean, fields: { [key: string]: any }, checkedTypes: any[] = []) {
-
-    const fieldMetadataList = Reflect.getMetadata(GQ_FIELDS_KEY, target.prototype) as FieldTypeMetadata[];
-    if (fieldMetadataList && Array.isArray(fieldMetadataList)) {
-        fieldMetadataList.filter((def) => def && def.name).forEach((def) => {
-            if (def.explicitTypeName && explicitTypeNameRepository[def.explicitTypeName]) {
-                fields[def.name] = fieldTypeFactory(target, def, isInput, isSubscription);
-            }
-        });
-    }
-
-}
-
 export function objectTypeFactory(target: any, isInput?: boolean, isSubscription?: boolean) {
     const objectTypeMetadata = Reflect.getMetadata(GQ_OBJECT_METADATA_KEY, target.prototype) as ObjectTypeMetadata;
 
