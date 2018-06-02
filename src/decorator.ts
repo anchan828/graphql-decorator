@@ -22,6 +22,7 @@ export interface TypeMetadata {
     isList?: boolean;
     multidimensionalList?: number;
     explicitType?: any;
+    explicitTypeName?: string;
 }
 
 export interface ArgumentMetadata extends TypeMetadata {
@@ -75,6 +76,7 @@ function createOrSetObjectTypeMetadata(target: any, metadata: ObjectTypeMetadata
 }
 
 export interface FieldOption {
+    typeName?: string;
     type?: any;
     isConnection?: boolean;
 }
@@ -213,9 +215,9 @@ export function InputObjectType(option?: MergeOptionMetadata) {
 
 export function Field(option?: FieldOption) {
     return (target: any, propertyKey: any) => {
-
         const metadata = {
             name: propertyKey,
+            explicitTypeName: option && option.typeName,
             explicitType: option && option.type,
             isConnection: option && option.isConnection,
         } as FieldTypeMetadata;

@@ -394,4 +394,77 @@ type TwiceEdge {
             },
         }));
     });
+
+    it("returns a GraphQL schema object with @Query", () => {
+
+        @D.ObjectType()
+        class A {
+            @D.Field()
+            public a: string;
+        }
+
+        @D.ObjectType()
+        class B {
+            @D.Field()
+            public b: string;
+        }
+
+        @D.ObjectType()
+        class C {
+            @D.Field({typeName: "B"})
+            public c: string;
+        }
+
+        @D.ObjectType()
+        class Query {
+            @D.Field({type: A})
+            public a(): any {
+                return null;
+            }
+
+            @D.Field({type: B})
+            public b(): any {
+                return null;
+            }
+
+            @D.Field({typeName: "B"})
+            @D.Description("Hello")
+            public bByName(): any {
+                return null;
+            }
+
+            @D.Field({type: C})
+            public c(): any {
+                return null;
+            }
+        }
+
+        @D.Schema()
+        class Schema {
+            @D.Query() public query: Query;
+        }
+
+        const schema = schemaFactory(Schema);
+        assert.strictEqual(printSchema(schema), `type A {
+  a: String
+}
+
+type B {
+  b: String
+}
+
+type C {
+  c: B
+}
+
+type Query {
+  a: A
+  b: B
+
+  """Hello"""
+  bByName: B
+  c: C
+}
+`);
+    });
 });

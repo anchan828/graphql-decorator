@@ -18,6 +18,7 @@ export interface ResolverHolder {
 function convertType(typeFn: any, metadata: TypeMetadata, isInput: boolean) {
     let returnType: any;
     if (!metadata.explicitType) {
+
         if (typeFn === Number) {
             returnType = GraphQLInt;     // FIXME or float?
         } else if (typeFn === String) {
@@ -142,7 +143,7 @@ export function fieldTypeFactory(target: any, metadata: FieldTypeMetadata, isInp
     }
 
     if (isFunctionType) {
-        if (!metadata.explicitType) {
+        if (!metadata.explicitType && !metadata.explicitTypeName) {
             typeFn = Reflect.getMetadata("design:returntype", target.prototype, metadata.name) as any;
         }
 
