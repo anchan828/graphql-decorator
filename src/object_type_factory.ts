@@ -4,7 +4,7 @@ import {fieldTypeFactory} from "./field_type_factory";
 import {SchemaFactoryError, SchemaFactoryErrorType} from "./schema_factory";
 
 let objectTypeRepository: { [key: string]: any } = {};
-let typeRepository: { [key: string]: any } = {};
+export let typeRepository: { [key: string]: any } = {};
 let explicitTypeNameRepository: { [key: string]: any[] } = {};
 
 export function clearObjectTypeRepository() {
@@ -78,8 +78,9 @@ export function objectTypeFactory(target: any, isInput?: boolean, isSubscription
 
     typeRepository[objectTypeMetadata.name] = target;
 
-    objectTypeRepository[objectTypeMetadata.name] = !!isInput ? new GraphQLInputObjectType(config) : new GraphQLObjectType(config);
-
+    if (!objectTypeRepository[objectTypeMetadata.name]) {
+        objectTypeRepository[objectTypeMetadata.name] = !!isInput ? new GraphQLInputObjectType(config) : new GraphQLObjectType(config);
+    }
     fieldMetadataList.filter((def) => def && def.name).forEach((def) => {
         if (def.explicitTypeName && explicitTypeNameRepository[def.explicitTypeName]) {
             fields[def.name] = fieldTypeFactory(target, def, isInput, isSubscription);

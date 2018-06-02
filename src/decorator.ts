@@ -15,6 +15,10 @@ export interface MergeOptionMetadata {
     merge: any[];
 }
 
+export interface SchemaMetadata {
+    explicitTypes?: any[];
+}
+
 export interface TypeMetadata {
     name?: string;
     description?: string;
@@ -333,8 +337,8 @@ export function Subscription() {
     };
 }
 
-export function Schema() {
+export function Schema(option?: SchemaMetadata) {
     return (target: any) => {
-        Reflect.defineMetadata(GQ_SCHEMA_KEY, {}, target);
+        Reflect.defineMetadata(GQ_SCHEMA_KEY, option || {}, target);
     };
 }

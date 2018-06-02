@@ -11,9 +11,9 @@
     "build": "rimraf lib && tsc",
     "lint": "tslint \"src/**/*.ts\"",
     "lint:fix": "tslint --fix \"src/**/*.ts\"",
-    "test": "npm run build && npm run lint && mocha lib/**/*.spec.js",
+    "test": "npm run build && npm run lint && mocha lib/*.spec.js lib/**/*.spec.js",
     "watch": "tsc -w",
-    "watch-test": "mocha lib/**/*.spec.js --watch"
+    "watch-test": "mocha lib/*.spec.js lib/**/*.spec.js --watch"
   },
   "keywords": [
     "graphql",
